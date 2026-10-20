@@ -1,0 +1,3354 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>2D Botanik Çiçek & Tropikal Meyve Çiftliği Deluxe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            background: #0f2213;
+            overflow-x: hidden;
+            overscroll-behavior: none;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            max-height: 62dvh;
+            aspect-ratio: 16 / 9.6;
+            object-fit: contain;
+            border-radius: 0.85rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.65);
+            cursor: pointer;
+            background: #4d8c2b;
+            touch-action: manipulation;
+            transition: max-height 0.25s ease;
+        }
+        @media (min-width: 640px) {
+            canvas {
+                max-height: 74dvh;
+                border-radius: 1rem;
+            }
+        }
+        /* Mobil dikey ekranda kompakt düzen */
+        @media (max-width: 639px) {
+            body {
+                padding: 3px !important;
+                gap: 3px !important;
+                overflow: hidden;
+            }
+            header {
+                padding: 4px 6px !important;
+                border-radius: 0.75rem !important;
+                gap: 3px !important;
+            }
+            section {
+                padding: 4px 6px !important;
+                border-radius: 0.75rem !important;
+                gap: 4px !important;
+            }
+            canvas {
+                max-height: 38dvh;
+                border-radius: 0.65rem;
+            }
+            #seedList {
+                max-height: 34dvh !important;
+            }
+        }
+        /* Mobil yatay (landscape) ekranda tam sığdırma */
+        @media (max-height: 520px) and (orientation: landscape) {
+            body {
+                padding: 3px 6px !important;
+                gap: 3px !important;
+            }
+            header, section {
+                padding: 4px 8px !important;
+                border-radius: 0.65rem !important;
+            }
+            canvas {
+                max-height: 56dvh;
+                width: auto;
+                margin: 0 auto;
+            }
+            #seedList {
+                max-height: 18dvh !important;
+            }
+        }
+        body.wide-screen-mode canvas {
+            max-height: 86dvh;
+        }
+        /* Özel Kaydırma Çubuğu */
+        .custom-scroll::-webkit-scrollbar { height: 5px; width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.25); border-radius: 8px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 8px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col items-center justify-between p-2 sm:p-3 gap-2">
+
+    <!-- Başlangıç / Karakter İsimlendirme Modalı -->
+    <div id="setupModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-amber-50 text-amber-950 border-4 border-amber-600 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 max-w-md w-full max-h-[94dvh] overflow-y-auto custom-scroll shadow-2xl text-center my-auto">
+            <div class="text-5xl mb-2">🏡🌳🍒🥭</div>
+            <h1 id="setupTitle" class="text-2xl font-bold text-amber-900 mb-1">Çiçek & Meyve Çiftliği Deluxe</h1>
+            <p id="setupSub" class="text-xs text-amber-700 font-semibold mb-3">Gerçekçi Meyve Ağaçları • Çok Yıllık Hasat • Meyve Deposu & Reçel Atölyesi!</p>
+            
+            <div class="bg-emerald-100 border border-emerald-400 rounded-2xl p-2.5 mb-3 text-left text-xs text-emerald-950 space-y-1">
+                <div id="setupInfoTitle" class="font-bold">🌳 Yeni Gerçekçi Ağaç & Meyve Çıktısı Sistemi:</div>
+                <div id="setupInfo1">• <b>Kalıcı Meyve Ağaçları:</b> Kiraz, Elma, Şeftali, Portakal, Mango, Avokado, Muz, Papaya ve Hindistan Cevizi gerçek gövdeli ağaç olur! Hasat edilince yıkılmaz, tekrar çiçek açıp meyve verir!</div>
+                <div id="setupInfo2">• <b>Fiziksel Meyve Çıktısı & Depo:</b> Hasat edilen meyveler (Örn: +6 🍒, +5 🍎, +4 🥭) uçarak <b>🧺 Meyve Sepeti & Depo</b>'ya girer. İster anında sat, ister <b>🍹 Meyve Suyu & Reçel (+%40 Değer)</b> yap!</div>
+                <div id="setupInfo3">• <b>🪏 Kürek Modu:</b> Başka bir tür ekmek istersen kürek aracıyla ağacı veya bitkiyi sökebilirsin.</div>
+            </div>
+
+            <div class="space-y-2.5 text-left">
+                <div>
+                    <label id="lblLang" class="text-xs font-bold text-amber-700">DİL / LANGUAGE</label>
+                    <select id="langSelect" onchange="setLang(this.value)" class="w-full bg-white border-2 border-amber-400 rounded-xl p-2 font-semibold">
+                        <option value="tr">🇹🇷 Türkçe</option>
+                        <option value="en">🇬🇧 English</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label id="lblMale" class="text-xs font-bold text-blue-700">ERKEK ÇİFTÇİ</label>
+                        <input id="inpMale" type="text" value="Can" maxlength="12" class="w-full bg-white border-2 border-blue-300 rounded-xl p-2 font-bold">
+                    </div>
+                    <div>
+                        <label id="lblFemale" class="text-xs font-bold text-pink-700">KADIN ÇİFTÇİ</label>
+                        <input id="inpFemale" type="text" value="Elif" maxlength="12" class="w-full bg-white border-2 border-pink-300 rounded-xl p-2 font-bold">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ana Menü: Kaldığın Yerden Devam Et & Sıfırdan Başlama Bölümü -->
+            <div class="mt-4 bg-amber-100/90 border-2 border-amber-400 rounded-2xl p-3 text-left space-y-2.5">
+                <div class="text-xs font-extrabold text-amber-900 uppercase tracking-wide flex items-center justify-between">
+                    <span id="lblMenuSectionTitle">🎮 Oyun Modu Seçimi</span>
+                    <span id="savedSummaryBadge" class="bg-emerald-600 text-white px-2.5 py-0.5 rounded-full text-[11px] font-bold">Yeni Çiftlik</span>
+                </div>
+
+                <!-- Kayıt Özeti Kutusu -->
+                <div id="savedGameBanner" class="bg-white/90 border border-amber-300 rounded-xl p-2 text-xs text-amber-950">
+                    <div id="lblSavedFound" class="font-bold text-emerald-800">💾 Kayıt Durumu Kontrol Ediliyor...</div>
+                    <div id="savedDetailsText" class="text-[11px] text-amber-800 mt-0.5 font-semibold"></div>
+                </div>
+
+                <!-- 1. Kaldığın Yerden Devam Et Butonu -->
+                <button onclick="continueSavedGame()" id="btnContinueGame" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-2xl shadow-lg border-b-4 border-emerald-800 active:translate-y-0.5 transition flex items-center justify-between">
+                    <span class="flex items-center gap-2 text-sm sm:text-base">
+                        <span>▶️</span>
+                        <span id="txtContinueBtn">Kaldığın Yerden Devam Et</span>
+                    </span>
+                    <span id="subContinueBtn" class="text-[11px] bg-emerald-800/80 px-2 py-0.5 rounded-lg font-semibold">Kaydı Yükle</span>
+                </button>
+
+                <!-- 2. Sıfırdan Başla (0'dan Yeni Çiftlik) Butonu -->
+                <button onclick="startNewGameFromZero()" id="btnStart" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 px-4 rounded-2xl shadow-lg border-b-4 border-rose-800 active:translate-y-0.5 transition flex items-center justify-between">
+                    <span class="flex items-center gap-2 text-sm">
+                        <span>🔄</span>
+                        <span id="txtNewGameBtn">0'dan Başla (Yeni Çiftlik Kur)</span>
+                    </span>
+                    <span id="subNewGameBtn" class="text-[11px] bg-rose-900/80 px-2 py-0.5 rounded-lg font-semibold">Sıfırla & Başla</span>
+                </button>
+
+                <!-- Sıfırdan Başlama Onay Kutusu (Kayıt Varsa Yanlışlıkla Silinmesin Diye) -->
+                <div id="zeroConfirmBox" class="hidden bg-red-100 border-2 border-red-500 rounded-xl p-2.5 text-center space-y-2">
+                    <div id="lblZeroConfirmText" class="text-xs font-bold text-red-900">
+                        ⚠️ Mevcut kayıtlı çiftliğin silinip 0'dan yeni çiftlik açılacak. Emin misin?
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="confirmZeroStart()" id="btnConfirmZeroYes" class="bg-red-600 hover:bg-red-500 text-white font-bold py-1.5 rounded-xl text-xs border-b-2 border-red-800">
+                            ✅ Evet, 0'dan Başla
+                        </button>
+                        <button onclick="cancelZeroStart()" id="btnConfirmZeroNo" class="bg-stone-600 hover:bg-stone-500 text-white font-bold py-1.5 rounded-xl text-xs border-b-2 border-stone-800">
+                            ❌ Vazgeç
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bildirim / Seviye Atlama & Ansiklopedi Modalı -->
+    <div id="notifyModal" class="fixed inset-0 bg-black/65 z-50 hidden items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-amber-50 text-amber-950 border-4 border-amber-500 rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-w-lg w-full max-h-[94dvh] overflow-y-auto custom-scroll text-center shadow-2xl my-auto">
+            <div id="notifyIcon" class="text-5xl mb-2">🎉</div>
+            <h3 id="notifyTitle" class="text-xl font-bold text-amber-900 mb-1">Tebrikler!</h3>
+            <div id="notifyMsg" class="text-xs sm:text-sm text-amber-900 mb-4 font-medium whitespace-pre-line max-h-64 overflow-y-auto custom-scroll text-left bg-amber-100/80 p-3 rounded-2xl border border-amber-300"></div>
+            <button onclick="closeNotify()" id="btnOk" class="w-full bg-amber-500 hover:bg-amber-400 text-white font-bold py-2.5 rounded-xl border-b-4 border-amber-700">
+                Harika!
+            </button>
+        </div>
+    </div>
+
+    <!-- Üst Bilgi Çubuğu -->
+    <header class="w-full max-w-7xl bg-amber-900/95 border-2 border-amber-600 rounded-2xl p-2 px-3 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-1.5 sm:gap-2 shadow-lg">
+        <div class="flex items-center justify-between sm:justify-start gap-1.5 sm:gap-3 flex-wrap">
+            <div class="flex items-center gap-1.5 sm:gap-2.5">
+                <!-- Altın -->
+                <div class="bg-amber-950/90 px-2 sm:px-3 py-1 rounded-xl border border-amber-500/40 flex items-center gap-1">
+                    <span class="text-sm sm:text-lg">🪙</span>
+                    <span id="uiGold" class="font-bold text-amber-300 text-xs sm:text-lg">220</span>
+                </div>
+                <!-- Seviye & XP -->
+                <div class="bg-amber-950/90 px-2 sm:px-3 py-1 rounded-xl border border-emerald-500/40 flex items-center gap-1.5">
+                    <span class="text-sm sm:text-lg">⭐</span>
+                    <div>
+                        <div class="text-[11px] sm:text-xs leading-none text-emerald-300 font-bold whitespace-nowrap">
+                            <span id="lblLv">Sv.</span> <span id="uiLevel">1</span>
+                            <span id="uiXpText" class="text-[9px] sm:text-[10px] text-emerald-200/80 ml-0.5">(0/450)</span>
+                        </div>
+                        <div class="w-14 sm:w-24 bg-slate-700 h-1.5 sm:h-2 rounded-full mt-0.5 overflow-hidden">
+                            <div id="uiXpBar" class="bg-emerald-400 h-full transition-all" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tarla Sayısı -->
+                <div class="bg-amber-950/90 px-2 py-1 rounded-xl border border-amber-400/30 text-[11px] sm:text-xs font-bold text-amber-200 flex items-center gap-1">
+                    <span>🟫</span> <span id="uiPlotCount">12/16</span>
+                </div>
+            </div>
+            <!-- Meyve Sepeti / Depo Butonu -->
+            <button onclick="openBarnModal()" class="bg-rose-700 hover:bg-rose-600 px-2.5 sm:px-3 py-1 rounded-xl border border-rose-300 text-[11px] sm:text-xs font-bold text-white flex items-center gap-1 shadow transition active:scale-95 whitespace-nowrap">
+                <span>🧺</span>
+                <span id="lblBarnBtn">Meyve Sepeti:</span>
+                <span id="uiBarnCount" class="bg-amber-300 text-amber-950 px-1.5 py-0.2 rounded-full font-extrabold">0</span>
+            </button>
+        </div>
+
+        <!-- Sağ Üst Kontroller & İklim (Mobilde yatay kaydırılabilir tek satır) -->
+        <div class="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 sm:flex-wrap">
+            <div onclick="cycleTimeOfDay()" title="Zamanı Değiştir / Time of Day" class="shrink-0 cursor-pointer bg-amber-800/90 hover:bg-amber-700 px-2 sm:px-2.5 py-1 rounded-xl border border-amber-400/40 flex items-center gap-1 text-[11px] sm:text-xs font-bold transition whitespace-nowrap">
+                <span id="uiTimeIcon" class="text-sm sm:text-base">🌤️</span>
+                <span id="uiTimeName">Gündüz</span>
+            </div>
+            <div onclick="cycleWeather()" title="İklim Değiştir / Change Weather" class="shrink-0 cursor-pointer bg-sky-900/90 hover:bg-sky-800 px-2 sm:px-2.5 py-1 rounded-xl border border-sky-400/40 flex items-center gap-1 text-[11px] sm:text-xs font-bold transition whitespace-nowrap">
+                <span id="uiWeatherIcon" class="text-sm sm:text-base">☀️</span>
+                <span id="uiWeatherName">Güneşli (1x)</span>
+            </div>
+            <button onclick="openFlorapedia()" id="btnBook" class="shrink-0 bg-emerald-700 hover:bg-emerald-600 px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border border-emerald-400 whitespace-nowrap">
+                📖 Botanik Rehber
+            </button>
+            <button onclick="toggleMusic()" id="btnMusic" class="shrink-0 bg-amber-600 hover:bg-amber-500 px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border border-amber-300 shadow whitespace-nowrap">
+                🔇 Akustik Müzik
+            </button>
+            <button onclick="openMainMenu()" id="btnMainMenu" title="Ana Menüye Dön / Main Menu" class="shrink-0 bg-amber-700 hover:bg-amber-600 px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border border-amber-400 shadow flex items-center gap-1 whitespace-nowrap">
+                <span>🏠</span> <span id="lblMainMenuBtn">Ana Menü</span>
+            </button>
+            <button onclick="manualSaveGame()" id="btnSaveNow" title="Şimdi Kaydet / Save Now" class="shrink-0 bg-teal-700 hover:bg-teal-600 px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border border-teal-400 shadow flex items-center gap-1 whitespace-nowrap">
+                <span>💾</span> <span id="lblSaveBtn">Kaydet</span>
+            </button>
+            <button onclick="toggleFullScreen()" id="btnFullscreen" title="Ekranı Büyüt / Tam Ekran" class="shrink-0 bg-indigo-700 hover:bg-indigo-600 px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border border-indigo-400 shadow flex items-center gap-1 whitespace-nowrap">
+                <span>⛶</span> <span id="lblFullscreenBtn">Tam Ekran</span>
+            </button>
+            <button onclick="toggleLang()" id="btnLang" class="shrink-0 bg-amber-800 hover:bg-amber-700 px-2 py-1 rounded-xl text-[11px] sm:text-xs font-bold border border-amber-500 whitespace-nowrap">
+                🇬🇧 EN
+            </button>
+            <button onclick="resetSave()" id="btnReset" title="Sıfırla / Reset" class="shrink-0 bg-red-800/80 hover:bg-red-700 px-2 py-1 rounded-xl text-[11px] sm:text-xs font-bold border border-red-400/50">
+                🔄
+            </button>
+        </div>
+    </header>
+
+    <!-- Meyve Sepeti & Pazar / Reçel Atölyesi Modalı -->
+    <div id="barnModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-amber-50 text-amber-950 border-4 border-amber-600 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 max-w-xl w-full max-h-[94dvh] overflow-y-auto custom-scroll shadow-2xl flex flex-col gap-2.5 sm:gap-3 my-auto">
+            <div class="flex items-center justify-between border-b-2 border-amber-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl">🧺</span>
+                    <div>
+                        <h3 id="barnTitle" class="text-lg sm:text-xl font-bold text-amber-900">Meyve & Çiçek Sepeti (Depo)</h3>
+                        <p id="barnSub" class="text-xs text-amber-700 font-semibold">Ağaçlardan ve tarlalardan toplanan taze mahsuller</p>
+                    </div>
+                </div>
+                <button onclick="closeBarnModal()" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-3 py-1 rounded-xl text-sm">✕</button>
+            </div>
+
+            <!-- Otomatik Satış Ayarı -->
+            <div class="bg-amber-100 border border-amber-300 rounded-2xl p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div>
+                    <span id="lblAutoSellTitle" class="font-bold text-amber-950">⚡ Hasatta Anında Altın + Sepet Stoku:</span>
+                    <span id="lblAutoSellDesc" class="text-amber-800 block">Açıksa hasat anında altın verir, ayrıca sepete bonus meyve ekler! Kapalıysa tüm mahsul depoda birikir.</span>
+                </div>
+                <button onclick="toggleAutoSell()" id="btnAutoSellToggle" class="bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl shadow text-xs">
+                    Açık ✅
+                </button>
+            </div>
+
+            <!-- Depodaki Meyve & Çiçek Listesi -->
+            <div id="barnInventoryList" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-60 overflow-y-auto custom-scroll p-1"></div>
+
+            <!-- Alt Satış ve Reçel/Meyve Suyu İşleme Butonları -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t-2 border-amber-200">
+                <button onclick="sellAllBarn(1.0)" class="bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold py-2.5 px-4 rounded-2xl border-b-4 border-amber-700 shadow flex items-center justify-center gap-2 text-sm">
+                    <span>🏪</span> <span id="txtSellRaw">Pazarda Taze Sat</span> (<span id="valSellRaw">0🪙</span>)
+                </button>
+                <button onclick="sellAllBarn(1.4)" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 px-4 rounded-2xl border-b-4 border-rose-800 shadow flex items-center justify-center gap-2 text-sm">
+                    <span>🍹🍯</span> <span id="txtCraftJam">Meyve Suyu & Reçel Yap (+%40)</span> (<span id="valCraftJam">0🪙</span>)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2D Görsel Çiftlik Canvas Alanı + Hızlı Bildirim Bandı -->
+    <main class="w-full max-w-7xl flex-1 flex flex-col items-center justify-center relative">
+        <div id="toastBanner" class="pointer-events-none absolute top-3 z-20 bg-amber-950/95 text-amber-200 border-2 border-amber-400 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-xl opacity-0 transition-opacity duration-300">
+            ✨ Çiftliğe Hoş Geldin!
+        </div>
+        <canvas id="farmCanvas" width="900" height="540"></canvas>
+    </main>
+
+    <!-- Alt Panel: Kategori Sekmeleri, Hızlı Aksiyonlar & 22 Tür Fidan/Tohum Marketi -->
+    <section class="w-full max-w-7xl bg-amber-900/95 border-2 border-amber-600 rounded-2xl p-2.5 shadow-xl flex flex-col gap-2">
+        <!-- Üst Satır: Kategori Filtreleri ve Özgürlük/Kolaylık Butonları -->
+        <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-1.5 sm:gap-2 px-0.5 sm:px-1">
+            <!-- Kategori Sekmeleri -->
+            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 sm:flex-wrap">
+                <button onclick="setCategory('all')" id="tab_all" class="shrink-0 whitespace-nowrap px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border transition bg-amber-400 text-amber-950 border-white">
+                    🌟 Tümü (22)
+                </button>
+                <button onclick="setCategory('tree')" id="tab_tree" class="shrink-0 whitespace-nowrap px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border transition bg-amber-950/80 text-amber-200 border-amber-600">
+                    🌳 Meyve Ağaçları (9)
+                </button>
+                <button onclick="setCategory('orchard')" id="tab_orchard" class="shrink-0 whitespace-nowrap px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border transition bg-amber-950/80 text-amber-200 border-amber-600">
+                    🍓 Bahçe & Tropikal Fide (7)
+                </button>
+                <button onclick="setCategory('flower')" id="tab_flower" class="shrink-0 whitespace-nowrap px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border transition bg-amber-950/80 text-amber-200 border-amber-600">
+                    🌸 Çiçekler (6)
+                </button>
+                <span id="lblSelectedSeed" class="shrink-0 whitespace-nowrap bg-emerald-500 text-emerald-950 text-[11px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full ml-1 shadow">
+                    🍒 Kiraz Ağacı
+                </span>
+            </div>
+
+            <!-- Hızlı Aksiyon Butonları -->
+            <div class="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 sm:flex-wrap">
+                <button onclick="plantAllEmpty()" id="btnPlantAll" class="shrink-0 whitespace-nowrap bg-green-600 hover:bg-green-500 active:scale-95 text-white text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-b-2 border-green-800 flex items-center gap-1 shadow">
+                    <span>🌱</span> <span id="txtPlantAll">Tümüne Ek</span>
+                </button>
+                <button onclick="harvestAllReady()" id="btnHarvestAll" class="shrink-0 whitespace-nowrap bg-amber-500 hover:bg-amber-400 active:scale-95 text-amber-950 text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-b-2 border-amber-700 flex items-center gap-1 shadow">
+                    <span>🧺</span> <span id="txtHarvestAll">Tümünü Hasat Et</span>
+                </button>
+                <button onclick="waterAllPlots()" id="btnWaterAll" class="shrink-0 whitespace-nowrap bg-sky-600 hover:bg-sky-500 active:scale-95 text-white text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-b-2 border-sky-800 flex items-center gap-1 shadow">
+                    <span>💧</span> <span id="txtWaterAll">Can Suyu (-25🪙)</span>
+                </button>
+                <button onclick="pollinateAllPlots()" id="btnBeeAll" class="shrink-0 whitespace-nowrap bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-amber-950 text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-b-2 border-yellow-700 flex items-center gap-1 shadow">
+                    <span>🐝</span> <span id="txtBeeAll">Arı Tozlaşması (-35🪙)</span>
+                </button>
+                <button onclick="toggleShovelMode()" id="btnShovel" class="shrink-0 whitespace-nowrap bg-stone-700 hover:bg-stone-600 active:scale-95 text-stone-100 text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-b-2 border-stone-900 flex items-center gap-1 shadow">
+                    <span>🪏</span> <span id="txtShovel">Sök / Kürek</span>
+                </button>
+                <button onclick="expandFarmPlot()" id="btnExpand" class="shrink-0 whitespace-nowrap bg-purple-600 hover:bg-purple-500 active:scale-95 text-white text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-b-2 border-purple-800 flex items-center gap-1 shadow">
+                    <span>➕</span> <span id="txtExpand">Tarla Aç (120🪙)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 22 Tür Fidan/Tohum Marketi Izgarası -->
+        <div id="seedList" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-11 gap-1.5 max-h-40 sm:max-h-44 overflow-y-auto custom-scroll p-0.5"></div>
+    </section>
+
+<script>
+// --- ÇOKLU DİL SÖZLÜĞÜ (TR / EN) ---
+const I18N = {
+    tr: {
+        title: "Çiçek & Meyve Çiftliği Deluxe",
+        sub: "Gerçekçi Meyve Ağaçları • Çok Yıllık Hasat • Meyve Sepeti & Reçel Atölyesi!",
+        infoTitle: "🌳 Yeni Gerçekçi Ağaç & Meyve Çıktısı Sistemi:",
+        info1: "• <b>Kalıcı Meyve Ağaçları:</b> Kiraz, Elma, Şeftali, Portakal, Mango, Avokado, Muz, Papaya ve Hindistan Cevizi gerçek gövdeli ağaç olur! Hasat edilince yıkılmaz, tekrar çiçek açıp meyve verir!",
+        info2: "• <b>Fiziksel Meyve Çıktısı & Depo:</b> Hasat edilen meyveler (Örn: +6 🍒, +5 🍎, +4 🥭) uçarak <b>🧺 Meyve Sepeti & Depo</b>'ya girer. İster anında sat, ister <b>🍹 Meyve Suyu & Reçel (+%40 Değer)</b> yap!",
+        info3: "• <b>🪏 Kürek Modu:</b> Başka bir tür ekmek istersen kürek aracıyla ağacı veya bitkiyi sökebilirsin.",
+        lang: "DİL / LANGUAGE", male: "ERKEK ÇİFTÇİ", female: "KADIN ÇİFTÇİ",
+        start: "Çiftliğe Başla ve Müziği Aç! 🎵", ok: "Harika!", lv: "Sv.",
+        book: "📖 Botanik Rehber",
+        barnBtn: "Sepet:",
+        barnTitle: "🧺 Meyve & Çiçek Sepeti (Çiftlik Deposu)",
+        barnSub: "Ağaçlardan ve tarlalardan hasat edilen taze meyveler",
+        autoSellTitle: "⚡ Anında Satış + Sepet Bereketi:",
+        autoSellDesc: "Açıkken hasat anında altın verir ve sepete ekstra taze meyve ekler! Kapalıyken tüm meyveler yalnızca depoda birikir.",
+        autoOn: "Açık ✅", autoOff: "Sadece Depola 📦",
+        sellRaw: "Pazarda Taze Sat",
+        craftJam: "Meyve Suyu & Reçel Yap (+%40)",
+        emptyBarn: "Sepetin henüz boş! Ağaçlardan ve tarlalardan meyve hasat et.",
+        soldToast: (gold, isJam) => isJam ? `🍹🍯 Taze meyve suyu ve reçeller satıldı: +${gold}🪙!` : `🏪 Sepetteki taze mahsuller pazarda satıldı: +${gold}🪙!`,
+        shovelOff: "Sök / Kürek",
+        shovelOn: "🪏 Sökme Modu AÇIK!",
+        shovelToast: "🪏 Kürek Modu: Sökmek istediğin ağaca veya bitkiye tıkla!",
+        uprootedMsg: (name) => `🪏 ${name} söküldü, tarla yeni ekime hazır!`,
+        treeRegrowMsg: (icon, name, qty) => `🌳 ${name} ağacından +${qty} ${icon} toplandı! Ağaç yeniden çiçek açmak üzere hazır!`,
+        tabAll: "🌟 Tümü (22)", tabTree: "🌳 Meyve Ağaçları (9)", tabOrchard: "🍓 Fide & Tropikal (7)", tabFlower: "🌸 Çiçekler (6)",
+        plantAll: "Tümüne Ek",
+        harvestAll: "Tümünü Hasat Et",
+        waterAll: "Can Suyu (-25🪙)",
+        beeAll: "Arı Tozlaşması (-35🪙)",
+        expand: (cost) => `Tarla Aç (${cost}🪙)`,
+        expandMax: "Maks. Tarla (16)",
+        musicOn: "🔊 Akustik Müzik", musicOff: "🔇 Akustik Müzik",
+        w_sunny: "Güneşli (1x)", w_rainy: "Yağmurlu (1.5x)", w_tropical: "Tropikal İklim (2x)", w_drought: "Kurak (0.75x)",
+        t_day: "Gündüz", t_sunset: "Gün Batımı", t_night: "Yıldızlı Gece",
+        errLevelMsg: (name, req) => `${name} dikmek için Seviye ${req} olmalısın!`,
+        errGoldMsg: (name, cost) => `${name} için ${cost}🪙 gerekli!`,
+        waterMsg: "💧 Tüm ağaçlar ve bitkiler sulandı! (+%30 Büyüme)",
+        beeMsg: "🐝 Arılar ağaç çiçeklerini tozlaştırdı! Meyve oluşumu hızlandı (+%45)!",
+        expandMsg: "🎉 Yeni ahşap çevrili bereketli tarla çiftliğine eklendi!",
+        levelUpTitle: "Seviye Atladın! 🌟",
+        levelUpMsg: (lv, unlocked) => `Tebrikler! Seviye ${lv} oldun!\n${unlocked.length ? "Yeni Açılan Ağaç & Türler:\n" + unlocked.join(", ") : "Çiftliğin bereketleniyor!"}`,
+        bookTitle: "📖 Botanik Ağaç & Meyve Ansiklopedisi (22 Tür)",
+        bookIntro: "🌳 GERÇEKÇİ AĞAÇ & MEYVE SİSTEMİ:\n• Meyve Ağaçları (🌳/🌴) büyüdüğünde kalın gövdeli gerçek ağaç olur. Hasat edildiğinde YIKILMAZ; meyvesini sepete verir ve %45 olgun ağaç evresinden tekrar çiçek açıp meyve verir!\n• Büyüme: 1.🌱 Fidan ➔ 2.🌳 Gövde/Taç ➔ 3.🌸 Çiçeklenme ➔ 4.🍏 Ham Meyve ➔ 5.🍎 Olgun Meyve Çıktısı!\n\n",
+        resetConfirm: "İlerleme sıfırlandı! Yeni çiftlik hazır.",
+        stages: {
+            sprout: "🌱 Fidan",
+            stem: "🌿 Gövde",
+            treeSapling: "🌳 Genç Ağaç",
+            flower: "🌸 Çiçekte",
+            treeFlower: "🌳🌸 Çiçekli Ağaç",
+            unripe: "🍏 Ham Meyve",
+            ripeFruit: "🍎 Meyve Hazır!",
+            ripeFlower: "💐 Tam Çiçek!"
+        },
+        seeds: [
+            "Papatya", "Lale", "Lavanta", "Kırmızı Gül", "Ayçiçeği", "Kraliyet Orkidesi",
+            "Çilek Fidesi", "Yaban Mersini Çalısı", "Salkım Domates", "Kiraz Ağacı", "Amasya Elması Ağacı", "Portakal Ağacı", "Mor Üzüm Bağı",
+            "Tropikal Muz Ağacı", "Ananas Fidesi", "Altın Mango Ağacı", "Papaya Ağacı", "Hindistan Cevizi Ağacı", "Çarkıfelek Asması", "Ejder Meyvesi Kaktüsü",
+            "Şeftali Ağacı", "Avokado Ağacı"
+        ],
+        outputs: [
+            "Papatya Buketi", "Lale Buketi", "Lavanta Demeti", "Gül & Kuşburnu", "Ayçiçeği Çekirdeği", "Orkide Çiçeği",
+            "Çilek", "Yaban Mersini", "Domates", "Kiraz", "Amasya Elması", "Portakal", "Salkım Üzüm",
+            "Muz Hevengi", "Ananas", "Altın Mango", "Papaya", "Hindistan Cevizi", "Çarkıfelek Meyvesi", "Ejder Meyvesi",
+            "Şeftali", "Avokado"
+        ]
+    },
+    en: {
+        title: "Flower & Fruit Farm Deluxe",
+        sub: "Realistic Fruit Trees • Perennial Harvest • Fruit Barn & Jam Workshop!",
+        infoTitle: "🌳 Realistic Tree & Fruit Yield System:",
+        info1: "• <b>Perennial Fruit Trees:</b> Cherry, Apple, Peach, Orange, Mango, Avocado, Banana, Papaya & Coconut grow into real trees! They don't disappear after harvest—they blossom and fruit again!",
+        info2: "• <b>Physical Fruit Output & Barn:</b> Harvested fruits (e.g., +6 🍒, +5 🍎, +4 🥭) fly into your <b>🧺 Fruit Basket & Barn</b>. Sell fresh or craft <b>🍹 Juice & Jam (+40% Value)</b>!",
+        info3: "• <b>🪏 Shovel Mode:</b> Want to plant a different species? Use the shovel tool to uproot any tree or crop.",
+        lang: "LANGUAGE / DİL", male: "MALE FARMER", female: "FEMALE FARMER",
+        start: "Start Farming & Play Music! 🎵", ok: "Awesome!", lv: "Lv.",
+        book: "📖 Botanical Guide",
+        barnBtn: "Basket:",
+        barnTitle: "🧺 Fruit & Flower Basket (Farm Barn)",
+        barnSub: "Freshly harvested fruits & blossoms from your orchard",
+        autoSellTitle: "⚡ Instant Gold + Bonus Basket Stock:",
+        autoSellDesc: "When ON, harvesting gives instant gold AND adds bonus fruits to your basket! When OFF, all harvest goes into storage.",
+        autoOn: "ON ✅", autoOff: "Store Only 📦",
+        sellRaw: "Sell Fresh at Market",
+        craftJam: "Make Juice & Jam (+40% Value)",
+        emptyBarn: "Your basket is empty! Harvest fruit trees and crops first.",
+        soldToast: (gold, isJam) => isJam ? `🍹🍯 Freshly crafted juices & jams sold for +${gold}🪙!` : `🏪 Fresh harvest sold at the market for +${gold}🪙!`,
+        shovelOff: "Uproot / Shovel",
+        shovelOn: "🪏 Shovel Mode ON!",
+        shovelToast: "🪏 Shovel Mode: Click any tree or crop plot to uproot it!",
+        uprootedMsg: (name) => `🪏 ${name} uprooted! Plot is now empty.`,
+        treeRegrowMsg: (icon, name, qty) => `🌳 Harvested +${qty} ${icon} from ${name}! The tree stays standing to blossom again!`,
+        tabAll: "🌟 All (22)", tabTree: "🌳 Fruit Trees (9)", tabOrchard: "🍓 Bushes & Vines (7)", tabFlower: "🌸 Flowers (6)",
+        plantAll: "Plant All",
+        harvestAll: "Harvest All",
+        waterAll: "Water (-25🪙)",
+        beeAll: "Bee Pollination (-35🪙)",
+        expand: (cost) => `Add Plot (${cost}🪙)`,
+        expandMax: "Max Plots (16)",
+        musicOn: "🔊 Acoustic Music", musicOff: "🔇 Acoustic Music",
+        w_sunny: "Sunny (1x)", w_rainy: "Rainy (1.5x)", w_tropical: "Tropical Sun (2x)", w_drought: "Drought (0.75x)",
+        t_day: "Midday", t_sunset: "Golden Hour", t_night: "Starry Night",
+        errLevelMsg: (name, req) => `Reach Level ${req} to plant ${name}!`,
+        errGoldMsg: (name, cost) => `Need ${cost}🪙 for ${name}!`,
+        waterMsg: "💧 All orchard trees & crops watered! (+30% Growth)",
+        beeMsg: "🐝 Bees pollinated the blossoms! Fruit formation boosted (+45%)!",
+        expandMsg: "🎉 A new timber-framed fertile plot was added to your farm!",
+        levelUpTitle: "Level Up! 🌟",
+        levelUpMsg: (lv, unlocked) => `Congrats! You reached Level ${lv}!\n${unlocked.length ? "Newly Unlocked Trees & Crops:\n" + unlocked.join(", ") : "Your farm is thriving!"}`,
+        bookTitle: "📖 Botanical Tree & Fruit Encyclopedia (22 Species)",
+        bookIntro: "🌳 REALISTIC PERENNIAL FRUIT TREES:\n• Fruit Trees (🌳/🌴) grow into large trees with wooden trunks and lush canopies. When harvested, they DO NOT disappear—they yield fruit into your basket and reset to 45% to blossom and fruit again!\n• Stages: 1.🌱 Sapling ➔ 2.🌳 Trunk/Canopy ➔ 3.🌸 Blossoming ➔ 4.🍏 Green Fruit ➔ 5.🍎 Ripe Fruit Output!\n\n",
+        resetConfirm: "Progress reset! Fresh farm ready.",
+        stages: {
+            sprout: "🌱 Sapling",
+            stem: "🌿 Foliage",
+            treeSapling: "🌳 Young Tree",
+            flower: "🌸 Blossoming",
+            treeFlower: "🌳🌸 Blooming Tree",
+            unripe: "🍏 Green Fruit",
+            ripeFruit: "🍎 Fruit Ready!",
+            ripeFlower: "💐 Full Bloom!"
+        },
+        seeds: [
+            "Daisy", "Tulip", "Lavender", "Crimson Rose", "Sunflower", "Royal Orchid",
+            "Strawberry Bush", "Blueberry Bush", "Vine Tomato", "Cherry Tree", "Orchard Apple Tree", "Orange Tree", "Purple Grapevine",
+            "Tropical Banana Tree", "Pineapple Plant", "Golden Mango Tree", "Papaya Tree", "Coconut Palm Tree", "Passion Fruit Vine", "Dragon Fruit Cactus",
+            "Peach Tree", "Avocado Tree"
+        ],
+        outputs: [
+            "Daisy Bouquet", "Tulip Bouquet", "Lavender Bundle", "Rosehips", "Sunflower Seeds", "Orchid Bloom",
+            "Strawberries", "Blueberries", "Tomatoes", "Cherries", "Apples", "Oranges", "Grapes",
+            "Banana Bunch", "Pineapples", "Golden Mangoes", "Papayas", "Coconuts", "Passion Fruits", "Dragon Fruits",
+            "Peaches", "Avocados"
+        ]
+    }
+};
+
+// --- 22 ZENGİN TÜR: GERÇEK MEYVE AĞAÇLARI (isTree: true), BAHÇE FİDELERİ VE ÇİÇEKLER ---
+const SEEDS = [
+    { id: 0,  cat: "flower",  isTree: false, hasFruit: false, plantStyle: "herb", icon: "🌼", flowerColor: "#ffffff", centerColor: "#facc15", fruitShape: "daisy",      yieldCount: 4, unitPrice: 3,  cost: 10,   sell: 24,   time: 8,  xp: 6,   reqLv: 1 },
+    { id: 1,  cat: "flower",  isTree: false, hasFruit: false, plantStyle: "herb", icon: "🌷", flowerColor: "#f43f5e", centerColor: "#fde047", fruitShape: "tulip",      yieldCount: 4, unitPrice: 6,  cost: 22,   sell: 52,   time: 10, xp: 10,  reqLv: 1 },
+    { id: 2,  cat: "flower",  isTree: false, hasFruit: false, plantStyle: "herb", icon: "🪻", flowerColor: "#8b5cf6", centerColor: "#ddd6fe", fruitShape: "lavender",   yieldCount: 5, unitPrice: 9,  cost: 45,   sell: 105,  time: 13, xp: 16,  reqLv: 2 },
+    { id: 3,  cat: "flower",  isTree: false, hasFruit: true,  plantStyle: "bush", icon: "🌹", flowerColor: "#dc2626", centerColor: "#7f1d1d", fruitColor: "#ef4444", fruitShape: "rosehip",   yieldCount: 5, unitPrice: 14, cost: 75,   sell: 175,  time: 16, xp: 24,  reqLv: 3 },
+    { id: 4,  cat: "flower",  isTree: false, hasFruit: true,  plantStyle: "herb", icon: "🌻", flowerColor: "#facc15", centerColor: "#78350f", fruitColor: "#292524", fruitShape: "sunflower", yieldCount: 6, unitPrice: 20, cost: 130,  sell: 300,  time: 20, xp: 36,  reqLv: 5 },
+    { id: 5,  cat: "flower",  isTree: false, hasFruit: false, plantStyle: "herb", icon: "🪷", flowerColor: "#d946ef", centerColor: "#fef08a", fruitShape: "orchid",     yieldCount: 4, unitPrice: 55, cost: 260,  sell: 610,  time: 26, xp: 65,  reqLv: 7 },
+
+    { id: 6,  cat: "orchard", isTree: false, hasFruit: true,  plantStyle: "bush",      icon: "🍓", flowerColor: "#ffffff", centerColor: "#facc15", fruitColor: "#ef4444", fruitShape: "strawberry",  yieldCount: 6, unitPrice: 4,   cost: 16,   sell: 38,   time: 9,  xp: 8,   reqLv: 1 },
+    { id: 7,  cat: "orchard", isTree: false, hasFruit: true,  plantStyle: "bush",      icon: "🫐", flowerColor: "#fce7f3", centerColor: "#f472b6", fruitColor: "#2563eb", fruitShape: "blueberry",   yieldCount: 8, unitPrice: 5,   cost: 35,   sell: 82,   time: 12, xp: 14,  reqLv: 2 },
+    { id: 8,  cat: "orchard", isTree: false, hasFruit: true,  plantStyle: "bush",      icon: "🍅", flowerColor: "#fde047", centerColor: "#ca8a04", fruitColor: "#dc2626", fruitShape: "tomato",      yieldCount: 6, unitPrice: 9,   cost: 55,   sell: 130,  time: 15, xp: 20,  reqLv: 3 },
+    { id: 9,  cat: "tree",    isTree: true,  hasFruit: true,  plantStyle: "tree",      icon: "🍒", flowerColor: "#fbcfe8", centerColor: "#e11d48", fruitColor: "#be123c", fruitShape: "cherry",      yieldCount: 8, unitPrice: 12,  cost: 85,   sell: 195,  time: 18, xp: 28,  reqLv: 1 },
+    { id: 10, cat: "tree",    isTree: true,  hasFruit: true,  plantStyle: "tree",      icon: "🍎", flowerColor: "#ffe4e6", centerColor: "#facc15", fruitColor: "#dc2626", fruitShape: "apple",       yieldCount: 6, unitPrice: 24,  cost: 150,  sell: 350,  time: 22, xp: 42,  reqLv: 3 },
+    { id: 11, cat: "tree",    isTree: true,  hasFruit: true,  plantStyle: "tree",      icon: "🍊", flowerColor: "#ffffff", centerColor: "#fbbf24", fruitColor: "#f97316", fruitShape: "orange",      yieldCount: 6, unitPrice: 38,  cost: 240,  sell: 560,  time: 27, xp: 60,  reqLv: 5 },
+    { id: 12, cat: "orchard", isTree: false, hasFruit: true,  plantStyle: "vine",      icon: "🍇", flowerColor: "#d9f99d", centerColor: "#65a30d", fruitColor: "#7e22ce", fruitShape: "grape",       yieldCount: 6, unitPrice: 55,  cost: 350,  sell: 830,  time: 32, xp: 85,  reqLv: 6 },
+
+    { id: 13, cat: "tree",    isTree: true,  hasFruit: true,  plantStyle: "palm",      icon: "🍌", flowerColor: "#9f1239", centerColor: "#fde047", fruitColor: "#facc15", fruitShape: "banana",      yieldCount: 6, unitPrice: 6,   cost: 30,   sell: 72,   time: 12, xp: 13,  reqLv: 2 },
+    { id: 14, cat: "orchard", isTree: false, hasFruit: true,  plantStyle: "pineapple", icon: "🍍", flowerColor: "#a855f7", centerColor: "#ec4899", fruitColor: "#eab308", fruitShape: "pineapple",   yieldCount: 4, unitPrice: 26,  cost: 110,  sell: 260,  time: 19, xp: 32,  reqLv: 4 },
+    { id: 15, cat: "tree",    isTree: true,  hasFruit: true,  plantStyle: "tree",      icon: "🥭", flowerColor: "#fef08a", centerColor: "#f97316", fruitColor: "#f59e0b", fruitShape: "mango",       yieldCount: 5, unitPrice: 38,  cost: 200,  sell: 470,  time: 24, xp: 52,  reqLv: 5 },
+    { id: 16, cat: "tree",    isTree: true,  hasFruit: true,  plantStyle: "palm",      icon: "🍈", flowerColor: "#fef9c3", centerColor: "#84cc16", fruitColor: "#fb923c", fruitShape: "papaya",      yieldCount: 5, unitPrice: 58,  cost: 310,  sell: 730,  time: 29, xp: 75,  reqLv: 6 },
+    { id: 17, cat: "tree",    isTree: true,  hasFruit: true,  plantStyle: "palm",      icon: "🥥", flowerColor: "#fef3c7", centerColor: "#d97706", fruitColor: "#78350f", fruitShape: "coconut",     yieldCount: 5, unitPrice: 90,  cost: 480,  sell: 1140, time: 35, xp: 110, reqLv: 8 },
+    { id: 18, cat: "orchard", isTree: false, hasFruit: true,  plantStyle: "vine",      icon: "🟣", flowerColor: "#c084fc", centerColor: "#ffffff", fruitColor: "#581c87", fruitShape: "passion",     yieldCount: 6, unitPrice: 115, cost: 750,  sell: 1780, time: 40, xp: 155, reqLv: 9 },
+    { id: 19, cat: "orchard", isTree: false, hasFruit: true,  plantStyle: "cactus",    icon: "🐉", flowerColor: "#ffffff", centerColor: "#fde047", fruitColor: "#ec4899", fruitShape: "dragonfruit", yieldCount: 5, unitPrice: 220, cost: 1200, sell: 2900, time: 48, xp: 230, reqLv: 10 },
+    { id: 20, cat: "tree",    isTree: true,  hasFruit: true,  plantStyle: "tree",      icon: "🍑", flowerColor: "#f9a8d4", centerColor: "#be185d", fruitColor: "#fb7185", fruitShape: "peach",       yieldCount: 6, unitPrice: 30,  cost: 180,  sell: 420,  time: 23, xp: 48,  reqLv: 4 },
+    { id: 21, cat: "tree",    isTree: true,  hasFruit: true,  plantStyle: "tree",      icon: "🥑", flowerColor: "#d9f99d", centerColor: "#65a30d", fruitColor: "#15803d", fruitShape: "avocado",     yieldCount: 5, unitPrice: 75,  cost: 400,  sell: 950,  time: 33, xp: 95,  reqLv: 7 }
+];
+
+// Zorlaştırılmış, kademeli artan XP eğrisi (Seviye 1 -> 450 XP, Seviye 2 -> 1150 XP, Seviye 5 -> 4500 XP...)
+function getRequiredXp(lv) {
+    return Math.round(450 * Math.pow(lv, 1.45));
+}
+
+// --- OYUN DURUMU ---
+let state = {
+    lang: "tr",
+    gold: 220,
+    level: 1,
+    xp: 0,
+    selectedSeed: 9,
+    category: "all",
+    unlockedPlots: 12,
+    weather: "sunny",
+    weatherMult: 1.0,
+    timeOfDay: "day",
+    music: false,
+    shovelMode: false,
+    autoSell: true,
+    inventory: {},
+    flyingFruits: [],
+    windmillAngle: 0,
+    worldTime: 0,
+    farmers: [
+        {
+            name: "Can", gender: "M",
+            x: 125, y: 275, tx: 125, ty: 275,
+            shirt: "#dc2626", overalls: "#1d4ed8", hat: "#eab308", hair: "#451a03",
+            step: 0, facing: 1, tool: "none", workTimer: 0, blinkTimer: 0,
+            queue: []
+        },
+        {
+            name: "Elif", gender: "F",
+            x: 775, y: 305, tx: 775, ty: 305,
+            shirt: "#ec4899", overalls: "#0284c7", hat: "#facc15", hair: "#7c2d12",
+            step: 0, facing: -1, tool: "none", workTimer: 0, blinkTimer: 1.5,
+            queue: []
+        }
+    ],
+    plots: [],
+    grassTufts: Array.from({length: 55}, (_, i) => ({
+        x: (i * 137) % 880 + 10,
+        y: (i * 89) % 500 + 25,
+        hasFlower: i % 4 === 0,
+        fColor: ["#fef08a", "#fbcfe8", "#e0f2fe", "#ddd6fe"][i % 4]
+    })).filter(g => !(g.x > 175 && g.x < 725 && g.y > 115 && g.y < 525)),
+    clouds: Array.from({length: 5}, (_, i) => ({
+        x: i * 210 + 40, y: 22 + (i % 3) * 18, s: 0.75 + (i % 3) * 0.2, speed: 6 + (i % 3) * 3
+    })),
+    fireflies: Array.from({length: 26}, () => ({
+        x: Math.random() * 880 + 10, y: Math.random() * 500 + 20,
+        phase: Math.random() * Math.PI * 2, vx: (Math.random() - 0.5) * 18, vy: (Math.random() - 0.5) * 18
+    })),
+    chickens: [
+        { x: 255, y: 98, vx: 12, facing: 1, peck: 0, color: "#ffffff" },
+        { x: 295, y: 112, vx: -10, facing: -1, peck: 1.5, color: "#fed7aa" },
+        { x: 615, y: 105, vx: 11, facing: 1, peck: 0.8, color: "#fef3c7" }
+    ],
+    koiFish: [
+        { angle: 0, radiusX: 24, radiusY: 12, speed: 1.1, color: "#f97316" },
+        { angle: 3.14, radiusX: 18, radiusY: 9, speed: 0.85, color: "#ef4444" }
+    ],
+    pollinators: Array.from({length: 10}, (_, i) => ({
+        isBee: i % 2 === 0,
+        x: 200 + Math.random()*500, y: 150 + Math.random()*300,
+        vx: (Math.random()-0.5)*52, vy: (Math.random()-0.5)*52,
+        color: ["#f472b6","#facc15","#60a5fa","#c084fc"][i % 4],
+        wing: Math.random()*10
+    })),
+    raindrops: Array.from({length: 60}, () => ({ x: Math.random()*900, y: Math.random()*540, s: 4+Math.random()*4 })),
+    particles: [],
+    floatingTexts: []
+};
+
+// Tarla Kurulumu
+const startX = 215, startY = 148, padX = 122, padY = 92;
+for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+        const idx = r * 4 + c;
+        state.plots.push({
+            id: idx,
+            x: startX + c * padX,
+            y: startY + r * padY,
+            w: 104,
+            h: 76,
+            status: "empty",
+            seedId: null,
+            progress: 0,
+            wetTimer: 0
+        });
+    }
+}
+
+function spawnParticles(x, y, type, count = 10) {
+    for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 25 + Math.random() * 55;
+        let color = "#854d0e";
+        if (type === "water") color = ["#38bdf8", "#7dd3fc", "#e0f2fe"][i % 3];
+        else if (type === "harvest") color = ["#facc15", "#4ade80", "#fb923c", "#ffffff"][i % 4];
+        else if (type === "soil") color = ["#5c3a21", "#78350f", "#4ade80"][i % 3];
+        state.particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 25,
+            size: 2.5 + Math.random() * 3,
+            color,
+            life: 0.45 + Math.random() * 0.35,
+            maxLife: 0.8
+        });
+    }
+}
+
+let hasSavedGame = false;
+let offlineGrowSeconds = 0;
+
+function saveGame() {
+    try {
+        const data = {
+            hasStarted: true,
+            lastSavedAt: Date.now(),
+            lang: state.lang,
+            gold: state.gold,
+            level: state.level,
+            xp: state.xp,
+            selectedSeed: state.selectedSeed,
+            category: state.category,
+            unlockedPlots: state.unlockedPlots,
+            weather: state.weather,
+            weatherMult: state.weatherMult,
+            timeOfDay: state.timeOfDay,
+            autoSell: state.autoSell,
+            inventory: state.inventory,
+            maleName: state.farmers[0].name,
+            femaleName: state.farmers[1].name,
+            farmersPos: state.farmers.map(f => ({ x: f.x, y: f.y, facing: f.facing })),
+            plots: state.plots.map(p => ({
+                status: p.status,
+                seedId: p.seedId,
+                progress: Number((p.progress || 0).toFixed(2)),
+                wetTimer: Number((p.wetTimer || 0).toFixed(1))
+            }))
+        };
+        localStorage.setItem("botanicalFruitFarmSave", JSON.stringify(data));
+        hasSavedGame = true;
+    } catch (e) {}
+}
+
+function manualSaveGame() {
+    saveGame();
+    sfxPlant();
+    showToast(state.lang === "tr" ? "💾 Oyun ilerlemen güvenle kaydedildi!" : "💾 Game progress saved!");
+}
+
+function loadGame() {
+    try {
+        const raw = localStorage.getItem("botanicalFruitFarmSave");
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        hasSavedGame = true;
+        if (data.lang) state.lang = data.lang;
+        state.gold = data.gold ?? 220;
+        state.level = data.level ?? 1;
+        state.xp = data.xp ?? 0;
+        if (typeof data.selectedSeed === "number" && SEEDS[data.selectedSeed]) {
+            state.selectedSeed = data.selectedSeed;
+        }
+        if (data.category) state.category = data.category;
+        state.unlockedPlots = data.unlockedPlots ?? 12;
+        if (data.weather) state.weather = data.weather;
+        if (data.weatherMult) state.weatherMult = data.weatherMult;
+        if (data.timeOfDay) state.timeOfDay = data.timeOfDay;
+        state.autoSell = data.autoSell ?? true;
+        state.inventory = data.inventory || {};
+        if (data.maleName) {
+            state.farmers[0].name = data.maleName;
+            document.getElementById("inpMale").value = data.maleName;
+        }
+        if (data.femaleName) {
+            state.farmers[1].name = data.femaleName;
+            document.getElementById("inpFemale").value = data.femaleName;
+        }
+        if (Array.isArray(data.farmersPos)) {
+            data.farmersPos.forEach((fp, idx) => {
+                if (state.farmers[idx] && fp) {
+                    state.farmers[idx].x = fp.x ?? state.farmers[idx].x;
+                    state.farmers[idx].y = fp.y ?? state.farmers[idx].y;
+                    state.farmers[idx].facing = fp.facing ?? state.farmers[idx].facing;
+                }
+            });
+        }
+
+        // Çevrimdışı geçen süreyi hesapla (kaldığın yerden devam ederken bitkiler büyümeye devam eder)
+        const elapsedSec = data.lastSavedAt ? Math.max(0, Math.min(3600, (Date.now() - data.lastSavedAt) / 1000)) : 0;
+        offlineGrowSeconds = Math.round(elapsedSec);
+
+        if (Array.isArray(data.plots)) {
+            data.plots.forEach((sp, i) => {
+                if (state.plots[i] && sp.seedId !== null && SEEDS[sp.seedId]) {
+                    const seed = SEEDS[sp.seedId];
+                    state.plots[i].status = sp.status || "empty";
+                    state.plots[i].seedId = sp.seedId;
+                    let prog = sp.progress || 0;
+                    if (state.plots[i].status === "growing" && elapsedSec > 1) {
+                        prog = Math.min(seed.time, prog + elapsedSec * 0.65);
+                        if (prog >= seed.time) state.plots[i].status = "ready";
+                    }
+                    state.plots[i].progress = prog;
+                    state.plots[i].wetTimer = sp.wetTimer || 0;
+                }
+            });
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function updateSetupModalForSavedGame() {
+    const isTr = state.lang === "tr";
+    const btnCont = document.getElementById("btnContinueGame");
+    const zeroBox = document.getElementById("zeroConfirmBox");
+    if (zeroBox) zeroBox.classList.add("hidden");
+
+    document.getElementById("lblMenuSectionTitle").innerText = isTr ? "🎮 Ana Menü • Oyun Seçimi" : "🎮 Main Menu • Game Select";
+    document.getElementById("txtNewGameBtn").innerText = isTr ? "0'dan Başla (Yeni Çiftlik Kur)" : "Start from Scratch (New Farm)";
+    document.getElementById("subNewGameBtn").innerText = isTr ? "Sıfırla & Başla" : "Reset & Start";
+    document.getElementById("lblZeroConfirmText").innerText = isTr
+        ? "⚠️ Mevcut kayıtlı çiftliğin silinip 0'dan yeni çiftlik açılacak. Emin misin?"
+        : "⚠️ Your saved farm will be erased and a new farm will start from 0. Are you sure?";
+    document.getElementById("btnConfirmZeroYes").innerText = isTr ? "✅ Evet, 0'dan Başla" : "✅ Yes, Start Fresh";
+    document.getElementById("btnConfirmZeroNo").innerText = isTr ? "❌ Vazgeç" : "❌ Cancel";
+
+    if (!hasSavedGame) {
+        document.getElementById("lblSavedFound").innerText = isTr
+            ? "🌱 Henüz kayıtlı bir çiftlik yok."
+            : "🌱 No saved farm found yet.";
+        document.getElementById("savedSummaryBadge").innerText = isTr ? "Kayıt Yok" : "No Save";
+        document.getElementById("savedDetailsText").innerText = isTr
+            ? "Aşağıdan '0'dan Başla' butonuna tıklayarak ilk çiftliğini hemen kurabilirsin!"
+            : "Click 'Start from Scratch' below to create your new farm!";
+        document.getElementById("txtContinueBtn").innerText = isTr ? "Kaldığın Yerden Devam Et" : "Continue Saved Farm";
+        document.getElementById("subContinueBtn").innerText = isTr ? "Kayıt Yok" : "No Save";
+        btnCont.className = "w-full bg-stone-400 text-stone-100 font-bold py-3 px-4 rounded-2xl border-b-4 border-stone-600 cursor-not-allowed opacity-70 flex items-center justify-between";
+        return;
+    }
+
+    const plantedCount = state.plots.slice(0, state.unlockedPlots).filter(p => p.status !== "empty").length;
+    document.getElementById("lblSavedFound").innerText = isTr ? "💾 Kayıtlı Çiftliğin Hazır!" : "💾 Saved Farm Ready!";
+    document.getElementById("savedSummaryBadge").innerText = `${isTr ? 'Sv.' : 'Lv.'}${state.level} • 🪙${state.gold}`;
+    document.getElementById("savedDetailsText").innerText = isTr
+        ? `👨‍🌾 ${state.farmers[0].name} & 👩‍🌾 ${state.farmers[1].name} • 🌱 ${plantedCount} Ekili Tarla • 🧺 Sepette ${getTotalInventoryCount()} Ürün`
+        : `👨‍🌾 ${state.farmers[0].name} & 👩‍🌾 ${state.farmers[1].name} • 🌱 ${plantedCount} Active Plots • 🧺 ${getTotalInventoryCount()} in Basket`;
+    document.getElementById("txtContinueBtn").innerText = isTr ? "Kaldığın Yerden Devam Et" : "Continue Saved Farm";
+    document.getElementById("subContinueBtn").innerText = `${isTr ? 'Sv.' : 'Lv.'}${state.level} • 🪙${state.gold}`;
+    btnCont.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-2xl shadow-lg border-b-4 border-emerald-800 active:translate-y-0.5 transition flex items-center justify-between";
+}
+
+function continueSavedGame() {
+    if (!hasSavedGame) {
+        sfxError();
+        showToast(state.lang === "tr" ? "🌱 Henüz kayıt yok, 0'dan Başla butonuna tıkla!" : "🌱 No save yet, click Start from Scratch!");
+        return;
+    }
+    state.farmers[0].name = document.getElementById("inpMale").value.trim() || state.farmers[0].name || "Can";
+    state.farmers[1].name = document.getElementById("inpFemale").value.trim() || state.farmers[1].name || "Elif";
+    document.getElementById("setupModal").classList.add("hidden");
+    if (!state.music) startAcousticMusic();
+    sfxHarvest();
+    saveGame();
+    updateUI();
+    if (offlineGrowSeconds > 5) {
+        showToast(state.lang === "tr"
+            ? `🌿 Hoş geldin! Yokluğunda bitkilerin büyümeye devam etti (+${offlineGrowSeconds} sn)`
+            : `🌿 Welcome back! Your crops grew while you were away (+${offlineGrowSeconds}s)`);
+        offlineGrowSeconds = 0;
+    } else {
+        showToast(state.lang === "tr"
+            ? "🏡 Kaldığın yerden devam ediyorsun!"
+            : "🏡 Continuing right where you left off!");
+    }
+}
+
+function startNewGameFromZero() {
+    if (hasSavedGame) {
+        const zeroBox = document.getElementById("zeroConfirmBox");
+        zeroBox.classList.remove("hidden");
+        sfxError();
+        return;
+    }
+    confirmZeroStart();
+}
+
+function cancelZeroStart() {
+    const zeroBox = document.getElementById("zeroConfirmBox");
+    if (zeroBox) zeroBox.classList.add("hidden");
+}
+
+function confirmZeroStart() {
+    try { localStorage.removeItem("botanicalFruitFarmSave"); } catch (e) {}
+    hasSavedGame = false;
+    offlineGrowSeconds = 0;
+    state.gold = 220;
+    state.level = 1;
+    state.xp = 0;
+    state.unlockedPlots = 12;
+    state.selectedSeed = 9;
+    state.category = "all";
+    state.weather = "sunny";
+    state.weatherMult = 1.0;
+    state.timeOfDay = "day";
+    state.shovelMode = false;
+    state.inventory = {};
+    state.plots.forEach(p => { p.status = "empty"; p.seedId = null; p.progress = 0; p.wetTimer = 0; });
+    state.farmers[0].x = 125; state.farmers[0].y = 275; state.farmers[0].queue = [];
+    state.farmers[1].x = 775; state.farmers[1].y = 305; state.farmers[1].queue = [];
+    state.farmers[0].name = document.getElementById("inpMale").value.trim() || "Can";
+    state.farmers[1].name = document.getElementById("inpFemale").value.trim() || "Elif";
+
+    document.getElementById("zeroConfirmBox").classList.add("hidden");
+    document.getElementById("setupModal").classList.add("hidden");
+    if (!state.music) startAcousticMusic();
+    sfxPlant();
+    saveGame();
+    updateUI();
+    showToast(state.lang === "tr"
+        ? "🌱 0'dan yepyeni çiftliğin kuruldu! İyi eğlenceler!"
+        : "🌱 Brand new farm started from scratch!");
+}
+
+function openMainMenu() {
+    saveGame();
+    updateSetupModalForSavedGame();
+    document.getElementById("inpMale").value = state.farmers[0].name;
+    document.getElementById("inpFemale").value = state.farmers[1].name;
+    document.getElementById("langSelect").value = state.lang;
+    const modal = document.getElementById("setupModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+}
+
+function toggleFullScreen() {
+    document.body.classList.toggle("wide-screen-mode");
+    if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        }
+    }
+    updateUI();
+}
+
+function resetSave() {
+    try { localStorage.removeItem("botanicalFruitFarmSave"); } catch (e) {}
+    hasSavedGame = false;
+    state.gold = 220;
+    state.level = 1;
+    state.xp = 0;
+    state.unlockedPlots = 12;
+    state.selectedSeed = 9;
+    state.inventory = {};
+    state.shovelMode = false;
+    state.plots.forEach(p => { p.status = "empty"; p.seedId = null; p.progress = 0; });
+    state.farmers.forEach(f => f.queue = []);
+    showToast(I18N[state.lang].resetConfirm);
+    updateUI();
+}
+
+function getTotalInventoryCount() {
+    return Object.values(state.inventory).reduce((a, b) => a + b, 0);
+}
+
+function openBarnModal() {
+    renderBarnModal();
+    const m = document.getElementById("barnModal");
+    m.classList.remove("hidden");
+    m.classList.add("flex");
+}
+
+function closeBarnModal() {
+    const m = document.getElementById("barnModal");
+    m.classList.add("hidden");
+    m.classList.remove("flex");
+}
+
+function toggleAutoSell() {
+    state.autoSell = !state.autoSell;
+    saveGame();
+    renderBarnModal();
+}
+
+function renderBarnModal() {
+    const d = I18N[state.lang];
+    document.getElementById("barnTitle").innerText = d.barnTitle;
+    document.getElementById("barnSub").innerText = d.barnSub;
+    document.getElementById("lblAutoSellTitle").innerText = d.autoSellTitle;
+    document.getElementById("lblAutoSellDesc").innerText = d.autoSellDesc;
+    document.getElementById("txtSellRaw").innerText = d.sellRaw;
+    document.getElementById("txtCraftJam").innerText = d.craftJam;
+
+    const btnAuto = document.getElementById("btnAutoSellToggle");
+    btnAuto.innerText = state.autoSell ? d.autoOn : d.autoOff;
+    btnAuto.className = state.autoSell
+        ? "bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl shadow text-xs"
+        : "bg-amber-700 hover:bg-amber-600 text-white font-bold px-3 py-1.5 rounded-xl shadow text-xs";
+
+    const listEl = document.getElementById("barnInventoryList");
+    listEl.innerHTML = "";
+
+    let totalRawValue = 0;
+    const entries = Object.entries(state.inventory).filter(([_, qty]) => qty > 0);
+
+    if (entries.length === 0) {
+        listEl.innerHTML = `<div class="col-span-full text-center py-8 text-amber-800 font-semibold text-sm">${d.emptyBarn}</div>`;
+    } else {
+        entries.forEach(([idStr, qty]) => {
+            const s = SEEDS[Number(idStr)];
+            if (!s) return;
+            const itemVal = qty * s.unitPrice;
+            totalRawValue += itemVal;
+            const card = document.createElement("div");
+            card.className = "bg-white border-2 border-amber-300 rounded-2xl p-2.5 flex items-center justify-between shadow-sm";
+            card.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">${s.icon}</span>
+                    <div>
+                        <div class="text-xs font-bold text-amber-950">${d.outputs[s.id]}</div>
+                        <div class="text-[11px] text-emerald-700 font-bold">🪙${s.unitPrice} / ${state.lang === "tr" ? "adet" : "pc"}</div>
+                    </div>
+                </div>
+                <div class="bg-amber-100 border border-amber-400 text-amber-950 font-extrabold px-2.5 py-1 rounded-xl text-sm">
+                    x${qty}
+                </div>
+            `;
+            listEl.appendChild(card);
+        });
+    }
+
+    document.getElementById("valSellRaw").innerText = `${totalRawValue}🪙`;
+    document.getElementById("valCraftJam").innerText = `${Math.round(totalRawValue * 1.4)}🪙`;
+}
+
+function sellAllBarn(multiplier = 1.0) {
+    let totalRawValue = 0;
+    Object.entries(state.inventory).forEach(([idStr, qty]) => {
+        const s = SEEDS[Number(idStr)];
+        if (s && qty > 0) totalRawValue += qty * s.unitPrice;
+    });
+    if (totalRawValue <= 0) {
+        sfxError();
+        return;
+    }
+    const earned = Math.round(totalRawValue * multiplier);
+    state.gold += earned;
+    state.inventory = {};
+    sfxHarvest();
+    spawnParticles(275, 65, "harvest", 20);
+    showToast(I18N[state.lang].soldToast(earned, multiplier > 1.1));
+    saveGame();
+    updateUI();
+    renderBarnModal();
+}
+
+function toggleShovelMode() {
+    state.shovelMode = !state.shovelMode;
+    if (state.shovelMode) {
+        showToast(I18N[state.lang].shovelToast);
+    }
+    updateUI();
+}
+
+// Ses Sentezleyici
+let audioCtx = null;
+let musicScheduler = null;
+let birdScheduler = null;
+let musicStep = 0;
+
+function ensureAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+    }
+}
+
+function playAcousticNote(freq, duration = 0.65, volume = 0.055, type = "triangle") {
+    try {
+        ensureAudio();
+        const now = audioCtx.currentTime;
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+
+        osc1.type = type;
+        osc2.type = "sine";
+        osc1.frequency.setValueAtTime(freq, now);
+        osc2.frequency.setValueAtTime(freq * 2, now);
+
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(freq * 3.2, now);
+        filter.frequency.exponentialRampToValueAtTime(freq * 1.2, now + duration);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(volume, now + 0.025);
+        gain.gain.exponentialRampToValueAtTime(volume * 0.35, now + duration * 0.4);
+        gain.gain.exponentialRampToValueAtTime(0.0008, now + duration);
+
+        const subGain = audioCtx.createGain();
+        subGain.gain.setValueAtTime(0.22, now);
+
+        osc1.connect(filter);
+        osc2.connect(subGain);
+        subGain.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + duration);
+        osc2.stop(now + duration);
+    } catch (e) {}
+}
+
+function playBirdChirp() {
+    if (!state.music || !audioCtx) return;
+    try {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        const baseFreq = 1600 + Math.random() * 600;
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.35, now + 0.07);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.9, now + 0.14);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.4, now + 0.22);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.014, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.24);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+    } catch (e) {}
+}
+
+const CHORD_PROGRESSION = [
+    { bass: 130.81, notes: [196.00, 246.94, 329.63, 392.00, 523.25, 392.00, 329.63, 246.94] },
+    { bass: 98.00,  notes: [146.83, 196.00, 246.94, 329.63, 392.00, 329.63, 246.94, 196.00] },
+    { bass: 110.00, notes: [164.81, 196.00, 261.63, 329.63, 440.00, 329.63, 261.63, 196.00] },
+    { bass: 87.31,  notes: [130.81, 174.61, 220.00, 261.63, 329.63, 261.63, 220.00, 174.61] }
+];
+
+const MELODY_OVERLAY = [
+    523.25, null, 659.25, 587.33, 523.25, null, 392.00, null,
+    493.88, null, 587.33, 523.25, 493.88, null, 392.00, null,
+    440.00, null, 523.25, 659.25, 587.33, null, 523.25, null,
+    440.00, null, 392.00, 440.00, 523.25, null, 392.00, null
+];
+
+function startAcousticMusic() {
+    stopAcousticMusic();
+    state.music = true;
+    ensureAudio();
+
+    musicScheduler = setInterval(() => {
+        if (!state.music) return;
+        const barIdx = Math.floor(musicStep / 8) % CHORD_PROGRESSION.length;
+        const beatIdx = musicStep % 8;
+        const chord = CHORD_PROGRESSION[barIdx];
+
+        if (beatIdx === 0 || beatIdx === 4) {
+            playAcousticNote(chord.bass, 1.3, 0.065, "sine");
+        }
+
+        const arpFreq = chord.notes[beatIdx];
+        playAcousticNote(arpFreq, 0.65, 0.04, "triangle");
+
+        const melFreq = MELODY_OVERLAY[musicStep % MELODY_OVERLAY.length];
+        if (melFreq) {
+            setTimeout(() => {
+                if (state.music) playAcousticNote(melFreq, 0.75, 0.032, "sine");
+            }, 15);
+        }
+
+        musicStep++;
+    }, 310);
+
+    birdScheduler = setInterval(() => {
+        if (state.music && Math.random() < 0.55) playBirdChirp();
+    }, 3800);
+
+    updateUI();
+}
+
+function stopAcousticMusic() {
+    state.music = false;
+    clearInterval(musicScheduler);
+    clearInterval(birdScheduler);
+    updateUI();
+}
+
+function toggleMusic() {
+    if (state.music) stopAcousticMusic();
+    else startAcousticMusic();
+}
+
+function sfxPlant() { playAcousticNote(330, 0.14, 0.06, "triangle"); setTimeout(() => playAcousticNote(440, 0.18, 0.06, "triangle"), 70); }
+function sfxHarvest() {
+    playAcousticNote(523.25, 0.16, 0.065, "triangle");
+    setTimeout(() => playAcousticNote(659.25, 0.16, 0.065, "triangle"), 75);
+    setTimeout(() => playAcousticNote(783.99, 0.28, 0.07, "sine"), 150);
+}
+function sfxWater() { playAcousticNote(440, 0.15, 0.05, "sine"); setTimeout(() => playAcousticNote(587.33, 0.2, 0.05, "sine"), 80); }
+function sfxError() { playAcousticNote(165, 0.25, 0.06, "sawtooth"); }
+
+let toastTimeout = null;
+function showToast(msg) {
+    const b = document.getElementById("toastBanner");
+    b.innerText = msg;
+    b.style.opacity = "1";
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => { b.style.opacity = "0"; }, 2800);
+}
+
+function setCategory(cat) {
+    state.category = cat;
+    updateUI();
+}
+
+function setLang(l) {
+    state.lang = l;
+    const d = I18N[l];
+    const langSel = document.getElementById("langSelect");
+    if (langSel && langSel.value !== l) langSel.value = l;
+    document.getElementById("setupTitle").innerText = d.title;
+    document.getElementById("setupSub").innerText = d.sub;
+    const infoTitleEl = document.getElementById("setupInfoTitle");
+    if (infoTitleEl) infoTitleEl.innerHTML = d.infoTitle;
+    const info1El = document.getElementById("setupInfo1");
+    if (info1El) info1El.innerHTML = d.info1;
+    const info2El = document.getElementById("setupInfo2");
+    if (info2El) info2El.innerHTML = d.info2;
+    const info3El = document.getElementById("setupInfo3");
+    if (info3El) info3El.innerHTML = d.info3;
+    document.getElementById("lblLang").innerText = d.lang;
+    document.getElementById("lblMale").innerText = d.male;
+    document.getElementById("lblFemale").innerText = d.female;
+    // Ana menü buton metinleri updateSetupModalForSavedGame() içinde güncellenir
+    document.getElementById("btnOk").innerText = d.ok;
+    document.getElementById("lblLv").innerText = d.lv;
+    document.getElementById("lblBarnBtn").innerText = d.barnBtn;
+    document.getElementById("btnBook").innerText = d.book;
+    document.getElementById("tab_all").innerText = d.tabAll;
+    document.getElementById("tab_tree").innerText = d.tabTree;
+    document.getElementById("tab_orchard").innerText = d.tabOrchard;
+    document.getElementById("tab_flower").innerText = d.tabFlower;
+    document.getElementById("txtPlantAll").innerText = d.plantAll;
+    document.getElementById("txtHarvestAll").innerText = d.harvestAll;
+    document.getElementById("txtWaterAll").innerText = d.waterAll;
+    document.getElementById("txtBeeAll").innerText = d.beeAll;
+    document.getElementById("btnLang").innerText = l === "tr" ? "🇬🇧 EN" : "🇹🇷 TR";
+    const lblMenu = document.getElementById("lblMainMenuBtn");
+    if (lblMenu) lblMenu.innerText = l === "tr" ? "Ana Menü" : "Main Menu";
+    const lblSave = document.getElementById("lblSaveBtn");
+    if (lblSave) lblSave.innerText = l === "tr" ? "Kaydet" : "Save";
+    const lblFs = document.getElementById("lblFullscreenBtn");
+    if (lblFs) lblFs.innerText = l === "tr" ? "Tam Ekran" : "Fullscreen";
+    updateSetupModalForSavedGame();
+    updateUI();
+}
+
+function toggleLang() {
+    setLang(state.lang === "tr" ? "en" : "tr");
+}
+
+function startGame() {
+    if (hasSavedGame) {
+        const confirmMsg = state.lang === "tr"
+            ? "Mevcut kayıtlı çiftliğin sıfırlanıp yeni oyun başlatılsın mı? (Kaldığın yerden devam etmek için üstteki yeşil butonu kullanabilirsin)"
+            : "Reset your saved farm and start a new game?";
+        if (!confirm(confirmMsg)) return;
+        state.gold = 220;
+        state.level = 1;
+        state.xp = 0;
+        state.unlockedPlots = 12;
+        state.selectedSeed = 9;
+        state.inventory = {};
+        state.plots.forEach(p => { p.status = "empty"; p.seedId = null; p.progress = 0; p.wetTimer = 0; });
+    }
+    state.farmers[0].name = document.getElementById("inpMale").value.trim() || "Can";
+    state.farmers[1].name = document.getElementById("inpFemale").value.trim() || "Elif";
+    document.getElementById("setupModal").classList.add("hidden");
+    if (!state.music) startAcousticMusic();
+    sfxPlant();
+    saveGame();
+    updateUI();
+}
+
+function showNotify(icon, title, msg) {
+    document.getElementById("notifyIcon").innerText = icon;
+    document.getElementById("notifyTitle").innerText = title;
+    document.getElementById("notifyMsg").innerText = msg;
+    const m = document.getElementById("notifyModal");
+    m.classList.remove("hidden");
+    m.classList.add("flex");
+}
+
+function closeNotify() {
+    const m = document.getElementById("notifyModal");
+    m.classList.add("hidden");
+    m.classList.remove("flex");
+}
+
+function openFlorapedia() {
+    const d = I18N[state.lang];
+    let lines = SEEDS.map(s => {
+        const status = state.level >= s.reqLv ? "✅" : `🔒 (${d.lv}${s.reqLv})`;
+        const typeBadge = state.lang === "tr" ? (s.isTree ? "🌳 Kalıcı Ağaç" : s.cat === "orchard" ? "🍓 Fide/Asma" : "🌸 Çiçek") : (s.isTree ? "🌳 Perennial Tree" : s.cat === "orchard" ? "🍓 Bush/Vine" : "🌸 Flower");
+        return `${s.icon} ${d.seeds[s.id]} [${typeBadge}] — 🪙${s.cost} ➔ 🪙${s.sell} | ⏱️${s.time}s ${status}`;
+    }).join("\n");
+    showNotify("🌳", d.bookTitle, d.bookIntro + lines);
+}
+
+function cycleTimeOfDay() {
+    const order = ["day", "sunset", "night"];
+    state.timeOfDay = order[(order.indexOf(state.timeOfDay) + 1) % order.length];
+    updateUI();
+}
+
+function cycleWeather() {
+    const order = ["sunny", "rainy", "tropical", "drought"];
+    const next = order[(order.indexOf(state.weather) + 1) % order.length];
+    state.weather = next;
+    state.weatherMult = next === "sunny" ? 1.0 : next === "rainy" ? 1.5 : next === "tropical" ? 2.0 : 0.75;
+    if (next === "rainy") {
+        state.plots.forEach(p => p.wetTimer = 20);
+    }
+    updateUI();
+}
+
+setInterval(() => {
+    if (document.getElementById("setupModal").classList.contains("hidden")) cycleWeather();
+}, 32000);
+
+function selectSeed(id) {
+    const seed = SEEDS[id];
+    const d = I18N[state.lang];
+    if (state.level < seed.reqLv) {
+        sfxError();
+        showToast(d.errLevelMsg(d.seeds[id], seed.reqLv));
+        return;
+    }
+    state.selectedSeed = id;
+    updateUI();
+}
+
+function getExpandCost() {
+    return 120 + (state.unlockedPlots - 12) * 180;
+}
+
+function updateUI() {
+    const d = I18N[state.lang];
+    document.getElementById("uiGold").innerText = state.gold;
+    document.getElementById("uiLevel").innerText = state.level;
+    const reqXp = getRequiredXp(state.level);
+    document.getElementById("uiXpText").innerText = `(${state.xp}/${reqXp})`;
+    document.getElementById("uiXpBar").style.width = Math.min(100, (state.xp / reqXp) * 100) + "%";
+    document.getElementById("uiPlotCount").innerText = `${state.unlockedPlots}/16`;
+    document.getElementById("uiBarnCount").innerText = getTotalInventoryCount();
+
+    const wIcons = { sunny: "☀️", rainy: "🌧️", tropical: "🌴", drought: "🔥" };
+    document.getElementById("uiWeatherIcon").innerText = wIcons[state.weather];
+    document.getElementById("uiWeatherName").innerText = d["w_" + state.weather];
+
+    const tIcons = { day: "🌤️", sunset: "🌅", night: "🌙" };
+    document.getElementById("uiTimeIcon").innerText = tIcons[state.timeOfDay];
+    document.getElementById("uiTimeName").innerText = d["t_" + state.timeOfDay];
+
+    document.getElementById("btnMusic").innerText = state.music ? d.musicOn : d.musicOff;
+
+    const btnShovel = document.getElementById("btnShovel");
+    const txtShovel = document.getElementById("txtShovel");
+    txtShovel.innerText = state.shovelMode ? d.shovelOn : d.shovelOff;
+    btnShovel.className = state.shovelMode
+        ? "shrink-0 whitespace-nowrap bg-red-600 hover:bg-red-500 animate-pulse text-white text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-b-2 border-red-900 flex items-center gap-1 shadow"
+        : "shrink-0 whitespace-nowrap bg-stone-700 hover:bg-stone-600 active:scale-95 text-stone-100 text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-b-2 border-stone-900 flex items-center gap-1 shadow";
+
+    const curSeed = SEEDS[state.selectedSeed];
+    document.getElementById("lblSelectedSeed").innerText = `${curSeed.icon} ${d.seeds[curSeed.id]} (🪙${curSeed.cost})`;
+
+    ["all", "tree", "orchard", "flower"].forEach(cat => {
+        const el = document.getElementById("tab_" + cat);
+        if (!el) return;
+        if (state.category === cat) {
+            el.className = "shrink-0 whitespace-nowrap px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border transition bg-amber-400 text-amber-950 border-white shadow";
+        } else {
+            el.className = "shrink-0 whitespace-nowrap px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold border transition bg-amber-950/80 text-amber-200 border-amber-600 hover:bg-amber-800";
+        }
+    });
+
+    const btnExp = document.getElementById("btnExpand");
+    const txtExp = document.getElementById("txtExpand");
+    if (state.unlockedPlots >= 16) {
+        txtExp.innerText = d.expandMax;
+        btnExp.classList.add("opacity-50", "cursor-not-allowed");
+    } else {
+        txtExp.innerText = d.expand(getExpandCost());
+        btnExp.classList.remove("opacity-50", "cursor-not-allowed");
+    }
+
+    const list = document.getElementById("seedList");
+    list.innerHTML = "";
+    const filteredSeeds = state.category === "all" ? SEEDS : SEEDS.filter(s => s.cat === state.category);
+
+    filteredSeeds.forEach(s => {
+        const locked = state.level < s.reqLv;
+        const active = state.selectedSeed === s.id;
+        const btn = document.createElement("button");
+        btn.onclick = () => selectSeed(s.id);
+        const catBadge = s.isTree ? "🌳" : s.cat === "orchard" ? "🍓" : "🌸";
+        btn.className = `p-1.5 rounded-xl border-2 flex flex-col items-center justify-between transition relative ${
+            active ? "bg-amber-400 text-amber-950 border-white scale-105 shadow-md" :
+            locked ? "bg-stone-800/80 text-stone-400 border-stone-600 opacity-65" :
+            "bg-amber-950/90 hover:bg-amber-800 border-amber-600/80 text-amber-100"
+        }`;
+        btn.innerHTML = `
+            <span class="absolute top-0.5 right-1 text-[9px] opacity-90">${catBadge}</span>
+            <div class="text-xl leading-none">${locked ? "🔒" : s.icon}</div>
+            <div class="text-[10px] font-bold truncate w-full text-center mt-0.5">${d.seeds[s.id]}</div>
+            <div class="text-[9px] font-semibold opacity-90">${locked ? d.lv + s.reqLv : "🪙" + s.cost + " ➔ +" + s.yieldCount + s.icon}</div>
+        `;
+        list.appendChild(btn);
+    });
+}
+
+function plantAllEmpty() {
+    const d = I18N[state.lang];
+    const seed = SEEDS[state.selectedSeed];
+    if (state.level < seed.reqLv) {
+        sfxError();
+        return showToast(d.errLevelMsg(d.seeds[seed.id], seed.reqLv));
+    }
+    let plantedAny = false;
+    for (let i = 0; i < state.unlockedPlots; i++) {
+        const p = state.plots[i];
+        if (p.status === "empty" && state.gold >= seed.cost) {
+            assignFarmer(p, "plant", seed.id);
+            plantedAny = true;
+        }
+    }
+    if (!plantedAny && state.gold < seed.cost) {
+        sfxError();
+        showToast(d.errGoldMsg(d.seeds[seed.id], seed.cost));
+    }
+}
+
+function harvestAllReady() {
+    for (let i = 0; i < state.unlockedPlots; i++) {
+        const p = state.plots[i];
+        if (p.status === "ready") {
+            assignFarmer(p, "harvest", p.seedId);
+        }
+    }
+}
+
+function waterAllPlots() {
+    const d = I18N[state.lang];
+    const growing = state.plots.slice(0, state.unlockedPlots).filter(p => p.status === "growing");
+    if (growing.length === 0) return;
+    if (state.gold < 25) {
+        sfxError();
+        return showToast(d.errGoldMsg("💧", 25));
+    }
+    state.gold -= 25;
+    sfxWater();
+    state.farmers.forEach(f => { f.tool = "water"; f.workTimer = 1.2; });
+    growing.forEach(p => {
+        const seed = SEEDS[p.seedId];
+        p.wetTimer = 25;
+        p.progress = Math.min(seed.time, p.progress + seed.time * 0.30);
+        if (p.progress >= seed.time) p.status = "ready";
+        spawnParticles(p.x + 52, p.y + 38, "water", 12);
+        state.floatingTexts.push({ x: p.x + 50, y: p.y + 20, text: "💧+%30", color: "#38bdf8", life: 35 });
+    });
+    showToast(d.waterMsg);
+    saveGame();
+    updateUI();
+}
+
+function pollinateAllPlots() {
+    const d = I18N[state.lang];
+    const growing = state.plots.slice(0, state.unlockedPlots).filter(p => p.status === "growing");
+    if (growing.length === 0) return;
+    if (state.gold < 35) {
+        sfxError();
+        return showToast(d.errGoldMsg("🐝", 35));
+    }
+    state.gold -= 35;
+    sfxHarvest();
+    growing.forEach(p => {
+        const seed = SEEDS[p.seedId];
+        p.progress = Math.min(seed.time, p.progress + seed.time * 0.45);
+        if (p.progress >= seed.time) p.status = "ready";
+        spawnParticles(p.x + 52, p.y + 38, "harvest", 10);
+        state.floatingTexts.push({ x: p.x + 52, y: p.y + 18, text: "🐝 Tozlaştı! +%45", color: "#facc15", life: 42 });
+    });
+    showToast(d.beeMsg);
+    saveGame();
+    updateUI();
+}
+
+function expandFarmPlot() {
+    if (state.unlockedPlots >= 16) return;
+    const cost = getExpandCost();
+    const d = I18N[state.lang];
+    if (state.gold < cost) {
+        sfxError();
+        return showToast(d.errGoldMsg("🟫", cost));
+    }
+    state.gold -= cost;
+    state.unlockedPlots++;
+    sfxHarvest();
+    showToast(d.expandMsg);
+    saveGame();
+    updateUI();
+}
+
+const canvas = document.getElementById("farmCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.addEventListener("pointerdown", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+    if (mx >= 225 && mx <= 320 && my >= 30 && my <= 98) {
+        openBarnModal();
+        return;
+    }
+
+    const plot = state.plots.find(p => mx >= p.x && mx <= p.x + p.w && my >= p.y && my <= p.y + p.h);
+    if (!plot) return;
+
+    if (plot.id >= state.unlockedPlots) {
+        expandFarmPlot();
+        return;
+    }
+
+    const d = I18N[state.lang];
+
+    if (state.shovelMode) {
+        if (plot.status !== "empty") {
+            const oldSeed = SEEDS[plot.seedId];
+            const oldName = oldSeed ? d.seeds[oldSeed.id] : "";
+            plot.status = "empty";
+            plot.seedId = null;
+            plot.progress = 0;
+            state.shovelMode = false;
+            sfxPlant();
+            spawnParticles(plot.x + 52, plot.y + 38, "soil", 14);
+            showToast(d.uprootedMsg(oldName));
+            saveGame();
+            updateUI();
+        } else {
+            state.shovelMode = false;
+            updateUI();
+        }
+        return;
+    }
+
+    const seed = SEEDS[state.selectedSeed];
+
+    if (plot.status === "empty") {
+        if (state.level < seed.reqLv) {
+            sfxError();
+            return showToast(d.errLevelMsg(d.seeds[seed.id], seed.reqLv));
+        }
+        if (state.gold < seed.cost) {
+            sfxError();
+            return showToast(d.errGoldMsg(d.seeds[seed.id], seed.cost));
+        }
+        assignFarmer(plot, "plant", seed.id);
+    } else if (plot.status === "ready") {
+        assignFarmer(plot, "harvest", plot.seedId);
+    } else if (plot.status === "growing") {
+        plot.progress += 0.75;
+        plot.wetTimer = 15;
+        playAcousticNote(587.33, 0.12, 0.03, "sine");
+        spawnParticles(mx, my, "water", 8);
+        state.floatingTexts.push({ x: mx, y: my, text: "💧🌿+Bakım", color: "#38bdf8", life: 26 });
+    }
+});
+
+function assignFarmer(plot, action, seedId) {
+    const alreadyQueued = state.farmers.some(f => f.queue.some(t => t.plot.id === plot.id && t.action === action));
+    if (alreadyQueued) return;
+
+    const cx = plot.x + plot.w / 2;
+    const cy = plot.y + plot.h / 2;
+
+    const f0Score = state.farmers[0].queue.length * 140 + Math.hypot(state.farmers[0].x - cx, state.farmers[0].y - cy);
+    const f1Score = state.farmers[1].queue.length * 140 + Math.hypot(state.farmers[1].x - cx, state.farmers[1].y - cy);
+    const farmer = f0Score <= f1Score ? state.farmers[0] : state.farmers[1];
+
+    farmer.queue.push({
+        plot,
+        action,
+        seedId,
+        tx: cx + (farmer.gender === "M" ? -34 : 34),
+        ty: cy + 10
+    });
+}
+
+function executeTask(task, farmer) {
+    const { plot, action, seedId } = task;
+    const d = I18N[state.lang];
+    const seed = SEEDS[seedId];
+
+    if (farmer) {
+        farmer.workTimer = 0.45;
+        farmer.facing = (plot.x + plot.w / 2) >= farmer.x ? 1 : -1;
+    }
+
+    if (action === "plant" && plot.status === "empty") {
+        if (state.gold < seed.cost) return;
+        state.gold -= seed.cost;
+        plot.status = "growing";
+        plot.seedId = seedId;
+        plot.progress = 0;
+        plot.wetTimer = 10;
+        sfxPlant();
+        spawnParticles(plot.x + 52, plot.y + 38, "soil", 12);
+        state.floatingTexts.push({ x: plot.x + 50, y: plot.y + 10, text: `${seed.isTree ? '🌳' : '🌱'} -${seed.cost}🪙`, color: "#fde047", life: 40 });
+        saveGame();
+        updateUI();
+    } else if (action === "harvest" && plot.status === "ready") {
+        const yieldQty = seed.yieldCount || 5;
+
+        if (seed.isTree) {
+            plot.status = "growing";
+            plot.progress = seed.time * 0.45;
+            plot.wetTimer = 12;
+        } else {
+            plot.status = "empty";
+            plot.seedId = null;
+            plot.progress = 0;
+        }
+
+        state.inventory[seed.id] = (state.inventory[seed.id] || 0) + yieldQty;
+        for (let i = 0; i < Math.min(6, yieldQty); i++) {
+            state.flyingFruits.push({
+                icon: seed.icon,
+                x: plot.x + 30 + Math.random() * 44,
+                y: plot.y + 20 + Math.random() * 25,
+                tx: 272,
+                ty: 58,
+                progress: -i * 0.08
+            });
+        }
+
+        let goldText = "";
+        if (state.autoSell) {
+            state.gold += seed.sell;
+            goldText = ` +${seed.sell}🪙`;
+        }
+        state.xp += seed.xp;
+        sfxHarvest();
+        spawnParticles(plot.x + 52, plot.y + 38, "harvest", 16);
+
+        state.floatingTexts.push({
+            x: plot.x + 52,
+            y: plot.y - 4,
+            text: `+${yieldQty} ${seed.icon} ${d.outputs[seedId]}${goldText}`,
+            color: "#fde047",
+            life: 62
+        });
+
+        let leveledUp = false;
+        let newlyUnlocked = [];
+        while (state.xp >= getRequiredXp(state.level)) {
+            state.xp -= getRequiredXp(state.level);
+            state.level++;
+            leveledUp = true;
+            SEEDS.filter(s => s.reqLv === state.level).forEach(s => newlyUnlocked.push(`${s.icon} ${d.seeds[s.id]}`));
+        }
+
+        saveGame();
+        updateUI();
+
+        if (leveledUp) {
+            showNotify("🌟", d.levelUpTitle, d.levelUpMsg(state.level, newlyUnlocked));
+        } else if (seed.isTree) {
+            showToast(d.treeRegrowMsg(seed.icon, d.seeds[seedId], yieldQty));
+        } else {
+            showToast(`🧺 +${yieldQty} ${seed.icon} ${d.outputs[seedId]}${goldText} (+${seed.xp} XP)`);
+        }
+    }
+}
+
+function getBotanicalStage(seed, ratio) {
+    const st = I18N[state.lang].stages;
+    if (ratio < 0.20) return { code: 1, label: st.sprout, color: "#86efac" };
+    if (ratio < 0.45) return { code: 2, label: seed.isTree ? st.treeSapling : st.stem, color: "#4ade80" };
+    if (seed.hasFruit) {
+        if (ratio < 0.72) return { code: 3, label: seed.isTree ? st.treeFlower : st.flower, color: "#fbcfe8" };
+        if (ratio < 1.00) return { code: 4, label: st.unripe, color: "#bef264" };
+        return { code: 5, label: `+${seed.yieldCount}${seed.icon} ${st.ripeFruit}`, color: "#fde047" };
+    } else {
+        if (ratio < 1.00) return { code: 3, label: st.flower, color: "#fbcfe8" };
+        return { code: 5, label: st.ripeFlower, color: "#fde047" };
+    }
+}
+
+function drawFarm() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawEnvironmentBackdrop();
+    drawGrassAndPaths();
+    drawPerimeterFence();
+    drawBarn(375, 6);
+    drawMarketStall(235, 38);
+    drawWindmill(745, 72);
+    drawWaterWell(142, 345);
+    drawBeehive(548, 76);
+    drawOrchardTree(55, 92);
+    drawTropicalPalm(842, 102);
+    drawTropicalPalm(58, 458);
+    drawPond(808, 442);
+    drawCow(92, 208);
+    drawChickens();
+    drawHayBales(798, 212);
+
+    state.plots.forEach(p => drawPlot(p));
+
+    const sortedFarmers = [...state.farmers].sort((a, b) => a.y - b.y);
+    sortedFarmers.forEach(f => drawRealisticFarmer(f));
+
+    drawPollinators();
+    drawParticles();
+    drawCloudsAndLighting();
+    drawFlyingFruits();
+
+    ctx.textAlign = "center";
+    state.floatingTexts.forEach(ft => {
+        ctx.font = "bold 14px Fredoka";
+        ctx.fillStyle = ft.color;
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 3;
+        ctx.strokeText(ft.text, ft.x, ft.y);
+        ctx.fillText(ft.text, ft.x, ft.y);
+    });
+}
+
+function drawEnvironmentBackdrop() {
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, 82);
+    if (state.timeOfDay === "night") {
+        skyGrad.addColorStop(0, "#090d16");
+        skyGrad.addColorStop(1, "#1e293b");
+    } else if (state.timeOfDay === "sunset") {
+        skyGrad.addColorStop(0, "#7c2d12");
+        skyGrad.addColorStop(0.5, "#ea580c");
+        skyGrad.addColorStop(1, "#fde047");
+    } else {
+        skyGrad.addColorStop(0, "#38bdf8");
+        skyGrad.addColorStop(1, "#bae6fd");
+    }
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, canvas.width, 82);
+
+    ctx.fillStyle = state.timeOfDay === "night" ? "#143321" : state.timeOfDay === "sunset" ? "#3f6212" : "#4d7c0f";
+    ctx.beginPath();
+    ctx.moveTo(0, 82);
+    ctx.quadraticCurveTo(140, 32, 310, 78);
+    ctx.quadraticCurveTo(480, 38, 650, 76);
+    ctx.quadraticCurveTo(790, 28, 900, 78);
+    ctx.lineTo(900, 95);
+    ctx.lineTo(0, 95);
+    ctx.closePath();
+    ctx.fill();
+
+    const grassGrad = ctx.createLinearGradient(0, 75, 0, canvas.height);
+    if (state.timeOfDay === "night") {
+        grassGrad.addColorStop(0, "#1e3f20");
+        grassGrad.addColorStop(1, "#112614");
+    } else if (state.timeOfDay === "sunset") {
+        grassGrad.addColorStop(0, "#558b2f");
+        grassGrad.addColorStop(1, "#335c16");
+    } else {
+        grassGrad.addColorStop(0, "#65a30d");
+        grassGrad.addColorStop(0.5, "#4d8c2b");
+        grassGrad.addColorStop(1, "#366314");
+    }
+    ctx.fillStyle = grassGrad;
+    ctx.fillRect(0, 75, canvas.width, canvas.height - 75);
+
+    if (state.weather === "tropical") {
+        const rColors = ["rgba(239,68,68,0.22)", "rgba(249,115,22,0.22)", "rgba(250,204,21,0.22)", "rgba(34,197,94,0.22)", "rgba(59,130,246,0.22)", "rgba(168,85,247,0.22)"];
+        rColors.forEach((col, i) => {
+            ctx.strokeStyle = col;
+            ctx.lineWidth = 9;
+            ctx.beginPath();
+            ctx.arc(450, 540, 470 - i * 9, Math.PI, 0);
+            ctx.stroke();
+        });
+    }
+}
+
+function drawGrassAndPaths() {
+    const sway = Math.sin(state.worldTime * 2.2) * 2;
+    state.grassTufts.forEach(g => {
+        ctx.strokeStyle = "rgba(34, 84, 20, 0.55)";
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(g.x, g.y); ctx.lineTo(g.x - 3 + sway, g.y - 6);
+        ctx.moveTo(g.x, g.y); ctx.lineTo(g.x + 3 + sway, g.y - 5);
+        ctx.stroke();
+        if (g.hasFlower) {
+            ctx.fillStyle = g.fColor;
+            ctx.beginPath(); ctx.arc(g.x + sway, g.y - 6, 2.2, 0, Math.PI*2); ctx.fill();
+        }
+    });
+
+    ctx.fillStyle = "#b89058";
+    ctx.strokeStyle = "#856235";
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.roundRect(186, 126, 528, 396, 26);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#cfa972";
+    ctx.beginPath();
+    ctx.roundRect(194, 134, 512, 380, 22);
+    ctx.fill();
+
+    ctx.fillStyle = "#cfa972";
+    ctx.fillRect(408, 92, 74, 46);
+    ctx.fillStyle = "#a8a29e";
+    [[425, 105], [458, 112], [435, 124], [202, 232], [202, 325], [696, 232], [696, 325]].forEach(([sx, sy]) => {
+        ctx.beginPath(); ctx.ellipse(sx, sy, 9, 5, 0.1, 0, Math.PI*2); ctx.fill();
+    });
+}
+
+function drawPerimeterFence() {
+    ctx.fillStyle = "#d6b382";
+    ctx.strokeStyle = "#784b23";
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(15, 110, 165, 4);
+    ctx.fillRect(15, 118, 165, 4);
+    ctx.fillRect(720, 110, 165, 4);
+    ctx.fillRect(720, 118, 165, 4);
+    for (let x = 20; x <= 175; x += 18) {
+        ctx.fillRect(x, 102, 6, 22);
+        ctx.strokeRect(x, 102, 6, 22);
+    }
+    for (let x = 725; x <= 880; x += 18) {
+        ctx.fillRect(x, 102, 6, 22);
+        ctx.strokeRect(x, 102, 6, 22);
+    }
+}
+
+function drawBarn(bx, by) {
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.beginPath(); ctx.ellipse(bx + 70, by + 100, 82, 12, 0, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#d6d3d1";
+    ctx.strokeStyle = "#57534e";
+    ctx.lineWidth = 2;
+    ctx.fillRect(bx - 28, by + 26, 30, 74);
+    ctx.strokeRect(bx - 28, by + 26, 30, 74);
+    ctx.fillStyle = "#991b1b";
+    ctx.beginPath(); ctx.arc(bx - 13, by + 26, 16, Math.PI, 0); ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = "#b91c1c";
+    ctx.fillRect(bx, by + 36, 140, 66);
+    ctx.strokeStyle = "rgba(69, 10, 10, 0.35)";
+    ctx.lineWidth = 1.5;
+    for (let y = by + 44; y < by + 100; y += 8) {
+        ctx.beginPath(); ctx.moveTo(bx, y); ctx.lineTo(bx + 140, y); ctx.stroke();
+    }
+
+    ctx.fillStyle = "#7f1d1d";
+    ctx.beginPath();
+    ctx.moveTo(bx - 16, by + 42);
+    ctx.lineTo(bx + 22, by + 14);
+    ctx.lineTo(bx + 70, by);
+    ctx.lineTo(bx + 118, by + 14);
+    ctx.lineTo(bx + 156, by + 42);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "#fef2f2";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = "#450a0a";
+    ctx.fillRect(bx + 46, by + 52, 48, 50);
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(bx + 46, by + 52, 48, 50);
+    ctx.beginPath();
+    ctx.moveTo(bx + 70, by + 52); ctx.lineTo(bx + 70, by + 102);
+    ctx.moveTo(bx + 46, by + 52); ctx.lineTo(bx + 94, by + 102);
+    ctx.moveTo(bx + 94, by + 52); ctx.lineTo(bx + 46, by + 102);
+    ctx.stroke();
+
+    ctx.fillStyle = state.timeOfDay === "day" ? "#fef08a" : "#fbbf24";
+    ctx.fillRect(bx + 56, by + 18, 28, 18);
+    ctx.strokeRect(bx + 56, by + 18, 28, 18);
+
+    if (state.timeOfDay !== "day") {
+        ctx.fillStyle = "rgba(251, 191, 36, 0.35)";
+        ctx.beginPath(); ctx.arc(bx + 36, by + 62, 18, 0, Math.PI*2); ctx.arc(bx + 104, by + 62, 18, 0, Math.PI*2); ctx.fill();
+    }
+}
+
+function drawMarketStall(mx, my) {
+    ctx.fillStyle = "#92400e";
+    ctx.strokeStyle = "#451a03";
+    ctx.lineWidth = 2;
+    ctx.fillRect(mx, my + 28, 76, 26);
+    ctx.strokeRect(mx, my + 28, 76, 26);
+    ctx.fillRect(mx + 4, my + 6, 5, 24);
+    ctx.fillRect(mx + 67, my + 6, 5, 24);
+
+    for (let i = 0; i < 5; i++) {
+        ctx.fillStyle = i % 2 === 0 ? "#dc2626" : "#fffbeb";
+        ctx.beginPath();
+        ctx.roundRect(mx - 4 + i * 17, my, 17, 12, 3);
+        ctx.fill();
+    }
+
+    ctx.fillStyle = "#ef4444";
+    ctx.beginPath(); ctx.arc(mx + 16, my + 25, 4.5, 0, Math.PI*2); ctx.arc(mx + 25, my + 25, 4.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#facc15";
+    ctx.beginPath(); ctx.arc(mx + 42, my + 25, 4.5, 0, Math.PI*2); ctx.arc(mx + 50, my + 25, 4.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#a855f7";
+    ctx.beginPath(); ctx.arc(mx + 63, my + 25, 4.5, 0, Math.PI*2); ctx.fill();
+}
+
+function drawWindmill(wx, wy) {
+    ctx.fillStyle = "#d6b382";
+    ctx.strokeStyle = "#78350f";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(wx - 18, wy + 45);
+    ctx.lineTo(wx - 9, wy - 12);
+    ctx.lineTo(wx + 9, wy - 12);
+    ctx.lineTo(wx + 18, wy + 45);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#991b1b";
+    ctx.beginPath(); ctx.arc(wx, wy - 12, 10, Math.PI, 0); ctx.fill(); ctx.stroke();
+
+    ctx.save();
+    ctx.translate(wx, wy - 8);
+    ctx.rotate(state.windmillAngle);
+    for (let i = 0; i < 4; i++) {
+        ctx.rotate(Math.PI / 2);
+        ctx.strokeStyle = "#5c3a21";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -34); ctx.stroke();
+        ctx.fillStyle = "rgba(254, 243, 199, 0.88)";
+        ctx.fillRect(0, -32, 9, 22);
+        ctx.strokeRect(0, -32, 9, 22);
+    }
+    ctx.fillStyle = "#451a03";
+    ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
+function drawWaterWell(wx, wy) {
+    ctx.fillStyle = "rgba(0,0,0,0.22)";
+    ctx.beginPath(); ctx.ellipse(wx, wy + 18, 24, 9, 0, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#78716c";
+    ctx.strokeStyle = "#44403c";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(wx - 18, wy, 36, 20, 6); ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = "#0284c7";
+    ctx.beginPath(); ctx.ellipse(wx, wy, 16, 6, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "#57534e";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = "#78350f";
+    ctx.fillRect(wx - 15, wy - 24, 4, 24);
+    ctx.fillRect(wx + 11, wy - 24, 4, 24);
+    ctx.fillStyle = "#92400e";
+    ctx.beginPath();
+    ctx.moveTo(wx - 22, wy - 20);
+    ctx.lineTo(wx, wy - 34);
+    ctx.lineTo(wx + 22, wy - 20);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+}
+
+function drawBeehive(hx, hy) {
+    ctx.fillStyle = "#eab308";
+    ctx.strokeStyle = "#a16207";
+    ctx.lineWidth = 2;
+    [0, -7, -14].forEach((dy, i) => {
+        ctx.beginPath();
+        ctx.ellipse(hx, hy + dy, 16 - i*2, 6, 0, 0, Math.PI*2);
+        ctx.fill(); ctx.stroke();
+    });
+    ctx.fillStyle = "#451a03";
+    ctx.beginPath(); ctx.arc(hx, hy - 3, 4, 0, Math.PI*2); ctx.fill();
+}
+
+function drawOrchardTree(tx, ty) {
+    ctx.fillStyle = "#78350f";
+    ctx.fillRect(tx - 8, ty + 15, 16, 28);
+    ctx.fillStyle = "#15803d";
+    ctx.beginPath(); ctx.arc(tx, ty, 28, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#22c55e";
+    ctx.beginPath(); ctx.arc(tx - 10, ty - 8, 18, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#ef4444";
+    [[-12, -4], [10, -8], [4, 8], [-6, 10]].forEach(([dx, dy]) => {
+        ctx.beginPath(); ctx.arc(tx + dx, ty + dy, 4, 0, Math.PI*2); ctx.fill();
+    });
+}
+
+function drawTropicalPalm(px, py) {
+    ctx.strokeStyle = "#92400e";
+    ctx.lineWidth = 10;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(px, py + 32);
+    ctx.quadraticCurveTo(px + 8, py + 5, px, py - 18);
+    ctx.stroke();
+
+    const sway = Math.sin(state.worldTime * 1.8 + px) * 0.05;
+    ctx.fillStyle = "#16a34a";
+    [-2.4, -1.6, -0.7, 0.7, 1.6, 2.4].forEach(ang => {
+        ctx.save();
+        ctx.translate(px, py - 18);
+        ctx.rotate(ang + sway);
+        ctx.beginPath();
+        ctx.ellipse(0, -18, 7, 20, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+    });
+
+    ctx.fillStyle = "#573014";
+    ctx.beginPath();
+    ctx.arc(px - 5, py - 14, 4.5, 0, Math.PI*2);
+    ctx.arc(px + 5, py - 14, 4.5, 0, Math.PI*2);
+    ctx.fill();
+}
+
+function drawPond(px, py) {
+    ctx.fillStyle = "#0369a1";
+    ctx.strokeStyle = "#a8a29e";
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.ellipse(px, py, 50, 31, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#0284c7";
+    ctx.beginPath();
+    ctx.ellipse(px, py, 42, 24, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    state.koiFish.forEach(fish => {
+        const fx = px + Math.cos(fish.angle) * fish.radiusX;
+        const fy = py + Math.sin(fish.angle) * fish.radiusY;
+        const dir = fish.angle + Math.PI / 2;
+        ctx.save();
+        ctx.translate(fx, fy);
+        ctx.rotate(dir);
+        ctx.fillStyle = fish.color;
+        ctx.beginPath(); ctx.ellipse(0, 0, 5.5, 2.5, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-8, -2.5); ctx.lineTo(-8, 2.5); ctx.closePath(); ctx.fill();
+        ctx.restore();
+    });
+
+    const rRadius = (state.worldTime * 12) % 22;
+    ctx.strokeStyle = `rgba(224, 242, 254, ${1 - rRadius / 22})`;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.ellipse(px + 10, py + 4, rRadius, rRadius * 0.6, 0, 0, Math.PI*2); ctx.stroke();
+
+    ctx.fillStyle = "#22c55e";
+    ctx.beginPath(); ctx.arc(px - 16, py - 6, 9, 0.2, Math.PI*1.9); ctx.fill();
+    ctx.fillStyle = "#fbcfe8";
+    ctx.beginPath(); ctx.arc(px - 16, py - 6, 4.5, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#78350f";
+    ctx.fillRect(px - 52, py - 8, 22, 14);
+    ctx.strokeStyle = "#451a03";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(px - 52, py - 8, 22, 14);
+}
+
+function drawCow(cx, cy) {
+    const grazeY = Math.sin(state.worldTime * 2.5) * 3;
+    ctx.fillStyle = "rgba(0,0,0,0.22)";
+    ctx.beginPath(); ctx.ellipse(cx, cy + 16, 28, 8, 0, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#e5e7eb";
+    [[-14, 8], [-6, 10], [8, 10], [15, 8]].forEach(([dx, dy]) => {
+        ctx.fillRect(cx + dx, cy + dy, 4.5, 10);
+    });
+
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "#374151";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.ellipse(cx, cy, 26, 16, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = "#1f2937";
+    ctx.beginPath(); ctx.arc(cx - 9, cy - 4, 7, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 5, cy + 4, 6, 0, Math.PI*2); ctx.fill();
+
+    const hx = cx + 23, hy = cy - 4 + grazeY;
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath(); ctx.arc(hx, hy, 11, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#fda4af";
+    ctx.beginPath(); ctx.ellipse(hx + 4, hy + 4, 7.5, 4.8, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#000";
+    ctx.beginPath(); ctx.arc(hx + 1, hy - 3, 2, 0, Math.PI*2); ctx.fill();
+}
+
+function drawChickens() {
+    state.chickens.forEach(ch => {
+        const peckDip = Math.max(0, Math.sin(ch.peck * 5)) * 4;
+        ctx.save();
+        ctx.translate(ch.x, ch.y);
+        ctx.scale(ch.facing, 1);
+
+        ctx.fillStyle = "rgba(0,0,0,0.2)";
+        ctx.beginPath(); ctx.ellipse(0, 7, 8, 3, 0, 0, Math.PI*2); ctx.fill();
+
+        ctx.fillStyle = ch.color;
+        ctx.strokeStyle = "#78350f";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.ellipse(0, 0, 8, 6, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+        ctx.beginPath(); ctx.arc(6, -4 + peckDip, 4.5, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#ef4444";
+        ctx.beginPath(); ctx.arc(6, -9 + peckDip, 2.5, 0, Math.PI*2); ctx.fill();
+
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath();
+        ctx.moveTo(10, -4 + peckDip); ctx.lineTo(14, -2 + peckDip); ctx.lineTo(10, -1 + peckDip);
+        ctx.closePath(); ctx.fill();
+
+        ctx.restore();
+    });
+}
+
+function drawHayBales(hx, hy) {
+    ctx.fillStyle = "#eab308";
+    ctx.strokeStyle = "#a16207";
+    ctx.lineWidth = 2;
+    [[0,0],[28,8],[12,-16]].forEach(([dx,dy]) => {
+        ctx.beginPath();
+        ctx.roundRect(hx + dx, hy + dy, 34, 22, 6);
+        ctx.fill(); ctx.stroke();
+    });
+}
+
+function drawPlot(p) {
+    const isLocked = p.id >= state.unlockedPlots;
+
+    if (isLocked) {
+        ctx.fillStyle = "rgba(68, 64, 60, 0.55)";
+        ctx.strokeStyle = "#57534e";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.roundRect(p.x, p.y, p.w, p.h, 12);
+        ctx.fill();
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.font = "bold 13px Fredoka";
+        ctx.fillStyle = "#e7e5e4";
+        ctx.textAlign = "center";
+        ctx.fillText(`➕ 🪙${getExpandCost()}`, p.x + p.w/2, p.y + p.h/2 + 5);
+        return;
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.22)";
+    ctx.beginPath(); ctx.roundRect(p.x + 2, p.y + 4, p.w, p.h, 12); ctx.fill();
+
+    const isWet = p.wetTimer > 0 || state.weather === "rainy";
+    ctx.fillStyle = isWet ? "#3e2412" : (p.status === "ready" ? "#4e2f18" : "#6b4226");
+    ctx.strokeStyle = "#854d0e";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.roundRect(p.x, p.y, p.w, p.h, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#5c3a21";
+    [[p.x+2, p.y+2], [p.x+p.w-6, p.y+2], [p.x+2, p.y+p.h-6], [p.x+p.w-6, p.y+p.h-6]].forEach(([cx, cy]) => {
+        ctx.fillRect(cx, cy, 4, 4);
+    });
+
+    ctx.strokeStyle = isWet ? "#291609" : "#4e342e";
+    ctx.lineWidth = 3;
+    for (let i = 15; i < p.h - 14; i += 16) {
+        ctx.beginPath();
+        ctx.moveTo(p.x + 12, p.y + i);
+        ctx.lineTo(p.x + p.w - 12, p.y + i);
+        ctx.stroke();
+    }
+
+    if (p.status === "empty") return;
+
+    const seed = SEEDS[p.seedId];
+    const ratio = Math.min(1, p.progress / seed.time);
+    const stage = getBotanicalStage(seed, ratio);
+
+    if (seed.isTree) {
+        drawTrueFruitTree(p.x + 33, p.y + 48, seed, stage.code, ratio);
+        drawTrueFruitTree(p.x + 73, p.y + 52, seed, stage.code, ratio);
+    } else {
+        const spots = [
+            [p.x + 28, p.y + 23], [p.x + 76, p.y + 23],
+            [p.x + 28, p.y + 50], [p.x + 76, p.y + 50]
+        ];
+        spots.forEach(([sx, sy]) => {
+            drawPlantAtStage(sx, sy, seed, stage.code, ratio);
+        });
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.72)";
+    ctx.beginPath();
+    ctx.roundRect(p.x + 6, p.y + p.h - 17, p.w - 12, 14, 5);
+    ctx.fill();
+
+    if (p.status === "growing") {
+        ctx.fillStyle = "rgba(74, 222, 128, 0.35)";
+        ctx.beginPath();
+        ctx.roundRect(p.x + 6, p.y + p.h - 17, (p.w - 12) * ratio, 14, 5);
+        ctx.fill();
+    } else if (p.status === "ready") {
+        ctx.strokeStyle = "#facc15";
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(p.x - 2, p.y - 2, p.w + 4, p.h + 4);
+    }
+
+    ctx.font = "bold 9.5px Fredoka";
+    ctx.fillStyle = stage.color;
+    ctx.textAlign = "center";
+    ctx.fillText(stage.label, p.x + p.w / 2, p.y + p.h - 6.5);
+}
+
+function drawTrueFruitTree(tx, ty, seed, stageCode, ratio) {
+    const sway = Math.sin(state.worldTime * 2 + tx) * 1.2;
+
+    if (stageCode === 1) {
+        ctx.strokeStyle = "#78350f";
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(tx, ty + 2); ctx.lineTo(tx, ty - 10); ctx.stroke();
+        ctx.fillStyle = "#4ade80";
+        ctx.beginPath();
+        ctx.ellipse(tx - 5, ty - 10, 6, 3.5, -0.4, 0, Math.PI*2);
+        ctx.ellipse(tx + 5, ty - 10, 6, 3.5, 0.4, 0, Math.PI*2);
+        ctx.fill();
+        return;
+    }
+
+    const scale = stageCode === 2 ? 0.78 : 1.0;
+
+    if (seed.plantStyle === "palm") {
+        ctx.fillStyle = "rgba(0,0,0,0.22)";
+        ctx.beginPath(); ctx.ellipse(tx, ty + 3, 12 * scale, 4 * scale, 0, 0, Math.PI*2); ctx.fill();
+
+        ctx.strokeStyle = seed.fruitShape === "banana" ? "#3f6212" : "#78350f";
+        ctx.lineWidth = 7 * scale;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(tx, ty + 2);
+        ctx.quadraticCurveTo(tx + 3 * scale, ty - 12 * scale, tx + sway * 0.5, ty - 25 * scale);
+        ctx.stroke();
+
+        const topX = tx + sway * 0.5, topY = ty - 25 * scale;
+        ctx.fillStyle = "#15803d";
+        [-2.3, -1.5, -0.7, 0.7, 1.5, 2.3].forEach((ang, idx) => {
+            ctx.save();
+            ctx.translate(topX, topY);
+            ctx.rotate(ang + sway * 0.03);
+            ctx.fillStyle = idx % 2 === 0 ? "#16a34a" : "#22c55e";
+            ctx.beginPath();
+            ctx.ellipse(0, -11 * scale, 4.2 * scale, 13 * scale, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+        });
+
+        if (stageCode === 3) {
+            ctx.fillStyle = seed.flowerColor;
+            ctx.beginPath();
+            ctx.arc(topX - 5, topY + 2, 3.5, 0, Math.PI*2);
+            ctx.arc(topX + 5, topY + 2, 3.5, 0, Math.PI*2);
+            ctx.fill();
+        } else if (stageCode >= 4) {
+            const isUnripe = stageCode === 4;
+            const col = isUnripe ? "#84cc16" : seed.fruitColor;
+            const fsc = isUnripe ? 0.72 : 1.05;
+            if (seed.fruitShape === "banana") {
+                [[-6, 3], [0, 4], [6, 3]].forEach(([dx, dy]) => {
+                    ctx.strokeStyle = col;
+                    ctx.lineWidth = 3.6 * fsc;
+                    ctx.lineCap = "round";
+                    ctx.beginPath();
+                    ctx.arc(topX + dx, topY + dy, 5.5 * fsc, 0.2, Math.PI - 0.2);
+                    ctx.stroke();
+                });
+            } else if (seed.fruitShape === "coconut") {
+                [[-5, 2], [5, 2], [0, 5]].forEach(([dx, dy]) => {
+                    ctx.fillStyle = col;
+                    ctx.beginPath(); ctx.arc(topX + dx, topY + dy, 4.8 * fsc, 0, Math.PI*2); ctx.fill();
+                });
+            } else {
+                [[-5, 3], [5, 3], [0, 7]].forEach(([dx, dy]) => {
+                    ctx.fillStyle = col;
+                    ctx.beginPath(); ctx.ellipse(topX + dx, topY + dy, 3.8 * fsc, 5.5 * fsc, 0, 0, Math.PI*2); ctx.fill();
+                });
+            }
+        }
+        return;
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.26)";
+    ctx.beginPath(); ctx.ellipse(tx, ty + 3, 15 * scale, 5 * scale, 0, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#5c3a21";
+    ctx.strokeStyle = "#3e2723";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(tx - 5 * scale, ty + 3);
+    ctx.lineTo(tx - 3 * scale, ty - 15 * scale);
+    ctx.lineTo(tx + 3 * scale, ty - 15 * scale);
+    ctx.lineTo(tx + 5 * scale, ty + 3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.strokeStyle = "#5c3a21";
+    ctx.lineWidth = 3 * scale;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty - 12 * scale); ctx.lineTo(tx - 9 * scale, ty - 20 * scale);
+    ctx.moveTo(tx, ty - 12 * scale); ctx.lineTo(tx + 9 * scale, ty - 20 * scale);
+    ctx.stroke();
+
+    const cx = tx + sway * 0.4, cy = ty - 23 * scale;
+    ctx.fillStyle = "#14532d";
+    ctx.beginPath();
+    ctx.arc(cx - 9 * scale, cy + 3 * scale, 10 * scale, 0, Math.PI*2);
+    ctx.arc(cx + 9 * scale, cy + 3 * scale, 10 * scale, 0, Math.PI*2);
+    ctx.arc(cx, cy - 5 * scale, 12 * scale, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "#16a34a";
+    ctx.beginPath();
+    ctx.arc(cx - 7 * scale, cy + 1 * scale, 9 * scale, 0, Math.PI*2);
+    ctx.arc(cx + 7 * scale, cy + 1 * scale, 9 * scale, 0, Math.PI*2);
+    ctx.arc(cx, cy - 4 * scale, 11 * scale, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "#22c55e";
+    ctx.beginPath();
+    ctx.arc(cx - 3 * scale, cy - 6 * scale, 7 * scale, 0, Math.PI*2);
+    ctx.arc(cx + 4 * scale, cy - 3 * scale, 6 * scale, 0, Math.PI*2);
+    ctx.fill();
+
+    if (stageCode === 2) return;
+
+    const fruitSpots = [
+        [cx - 9, cy + 2],
+        [cx + 9, cy + 2],
+        [cx - 4, cy - 7],
+        [cx + 5, cy - 6],
+        [cx, cy + 4]
+    ];
+
+    if (stageCode === 3) {
+        fruitSpots.forEach(([fx, fy]) => {
+            ctx.fillStyle = seed.flowerColor;
+            for (let a = 0; a < Math.PI * 2; a += Math.PI * 2 / 5) {
+                ctx.beginPath();
+                ctx.arc(fx + Math.cos(a)*2.8, fy + Math.sin(a)*2.8, 2.2, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.fillStyle = seed.centerColor;
+            ctx.beginPath(); ctx.arc(fx, fy, 1.7, 0, Math.PI*2); ctx.fill();
+        });
+        return;
+    }
+
+    const isUnripe = stageCode === 4;
+    const col = isUnripe ? "#84cc16" : seed.fruitColor;
+    const fsc = isUnripe ? 0.68 : 1.05;
+
+    fruitSpots.forEach(([fx, fy]) => {
+        if (seed.fruitShape === "cherry") {
+            ctx.strokeStyle = "#bbf7d0";
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(fx - 2.5, fy + 2); ctx.lineTo(fx, fy - 3); ctx.lineTo(fx + 2.5, fy + 2);
+            ctx.stroke();
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.arc(fx - 2.5, fy + 2.5, 2.8 * fsc, 0, Math.PI*2);
+            ctx.arc(fx + 2.5, fy + 2.5, 2.8 * fsc, 0, Math.PI*2);
+            ctx.fill();
+        } else if (seed.fruitShape === "mango" || seed.fruitShape === "avocado") {
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.ellipse(fx, fy, 3.4 * fsc, 4.8 * fsc, 0.2, 0, Math.PI*2);
+            ctx.fill();
+            if (!isUnripe) {
+                ctx.fillStyle = "rgba(255,255,255,0.4)";
+                ctx.beginPath(); ctx.arc(fx - 1, fy - 1.5, 1.2, 0, Math.PI*2); ctx.fill();
+            }
+        } else {
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.arc(fx, fy, 4.1 * fsc, 0, Math.PI*2);
+            ctx.fill();
+            if (!isUnripe) {
+                ctx.fillStyle = "rgba(255,255,255,0.45)";
+                ctx.beginPath(); ctx.arc(fx - 1.3, fy - 1.3, 1.3, 0, Math.PI*2); ctx.fill();
+            }
+        }
+    });
+}
+
+function drawFlyingFruits() {
+    ctx.font = "18px Fredoka";
+    ctx.textAlign = "center";
+    state.flyingFruits.forEach(ff => {
+        if (ff.progress < 0) return;
+        const t = Math.min(1, ff.progress);
+        const curX = ff.x + (ff.tx - ff.x) * t;
+        const curY = ff.y + (ff.ty - ff.y) * t - Math.sin(t * Math.PI) * 55;
+        ctx.fillText(ff.icon, curX, curY);
+    });
+}
+
+function drawPlantAtStage(sx, sy, seed, stageCode, ratio) {
+    if (stageCode === 1) {
+        ctx.strokeStyle = "#4ade80";
+        ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(sx, sy + 4); ctx.lineTo(sx, sy - 3); ctx.stroke();
+        ctx.fillStyle = "#4ade80";
+        ctx.beginPath();
+        ctx.ellipse(sx - 4, sy - 4, 4.5, 2.5, -0.4, 0, Math.PI*2);
+        ctx.ellipse(sx + 4, sy - 4, 4.5, 2.5, 0.4, 0, Math.PI*2);
+        ctx.fill();
+        return;
+    }
+
+    drawPlantFoliageBase(sx, sy, seed, stageCode);
+
+    if (stageCode === 2) return;
+    if (stageCode === 3) {
+        drawBlossomsOnPlant(sx, sy, seed, false);
+        return;
+    }
+    if (stageCode === 4) {
+        drawFruitOnPlant(sx, sy, seed, true);
+        return;
+    }
+    if (stageCode === 5) {
+        if (seed.hasFruit) {
+            drawFruitOnPlant(sx, sy, seed, false);
+        } else {
+            drawBlossomsOnPlant(sx, sy, seed, true);
+        }
+    }
+}
+
+function drawPlantFoliageBase(sx, sy, seed, stageCode) {
+    const scale = stageCode === 2 ? 0.82 : 1.0;
+
+    if (seed.plantStyle === "tree") {
+        ctx.fillStyle = "#78350f";
+        ctx.fillRect(sx - 2.5, sy - 6, 5, 12);
+        ctx.fillStyle = "#15803d";
+        ctx.beginPath(); ctx.arc(sx, sy - 10, 11 * scale, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#22c55e";
+        ctx.beginPath(); ctx.arc(sx - 3, sy - 12, 8 * scale, 0, Math.PI*2); ctx.fill();
+    } else if (seed.plantStyle === "palm") {
+        ctx.fillStyle = "#854d0e";
+        ctx.fillRect(sx - 2, sy - 7, 4, 13);
+        ctx.fillStyle = "#16a34a";
+        [-2.1, -1.1, 0, 1.1, 2.1].forEach(a => {
+            ctx.save();
+            ctx.translate(sx, sy - 9);
+            ctx.rotate(a);
+            ctx.beginPath(); ctx.ellipse(0, -8 * scale, 3.2, 8 * scale, 0, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        });
+    } else if (seed.plantStyle === "pineapple") {
+        ctx.fillStyle = "#15803d";
+        [-0.9, -0.45, 0, 0.45, 0.9].forEach(a => {
+            ctx.save();
+            ctx.translate(sx, sy + 2);
+            ctx.rotate(a);
+            ctx.beginPath(); ctx.ellipse(0, -8 * scale, 2.5, 9 * scale, 0, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        });
+    } else if (seed.plantStyle === "cactus") {
+        ctx.strokeStyle = "#15803d";
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(sx, sy + 4); ctx.lineTo(sx, sy - 11 * scale);
+        ctx.moveTo(sx, sy - 5); ctx.lineTo(sx - 7 * scale, sy - 10 * scale);
+        ctx.moveTo(sx, sy - 5); ctx.lineTo(sx + 7 * scale, sy - 10 * scale);
+        ctx.stroke();
+    } else if (seed.plantStyle === "vine") {
+        ctx.strokeStyle = "#78350f";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(sx - 7, sy + 4); ctx.lineTo(sx - 7, sy - 12);
+        ctx.moveTo(sx + 7, sy + 4); ctx.lineTo(sx + 7, sy - 12);
+        ctx.moveTo(sx - 9, sy - 10); ctx.lineTo(sx + 9, sy - 10);
+        ctx.stroke();
+        ctx.fillStyle = "#16a34a";
+        ctx.beginPath();
+        ctx.arc(sx - 4, sy - 10, 5.5 * scale, 0, Math.PI*2);
+        ctx.arc(sx + 4, sy - 10, 5.5 * scale, 0, Math.PI*2);
+        ctx.fill();
+    } else if (seed.plantStyle === "bush") {
+        ctx.fillStyle = "#15803d";
+        ctx.beginPath();
+        ctx.arc(sx - 4, sy - 4, 6.5 * scale, 0, Math.PI*2);
+        ctx.arc(sx + 4, sy - 4, 6.5 * scale, 0, Math.PI*2);
+        ctx.arc(sx, sy - 8, 7 * scale, 0, Math.PI*2);
+        ctx.fill();
+    } else {
+        ctx.strokeStyle = "#15803d";
+        ctx.lineWidth = 2.8;
+        ctx.beginPath(); ctx.moveTo(sx, sy + 5); ctx.lineTo(sx, sy - 10 * scale); ctx.stroke();
+        ctx.fillStyle = "#22c55e";
+        ctx.beginPath();
+        ctx.ellipse(sx - 4, sy - 2, 4, 2, -0.5, 0, Math.PI*2);
+        ctx.ellipse(sx + 4, sy - 2, 4, 2, 0.5, 0, Math.PI*2);
+        ctx.fill();
+    }
+}
+
+function drawBlossomsOnPlant(sx, sy, seed, isFullOrnamental) {
+    const cy = sy - 11;
+
+    if (!seed.hasFruit && isFullOrnamental) {
+        if (seed.fruitShape === "tulip") {
+            ctx.fillStyle = seed.flowerColor;
+            ctx.beginPath();
+            ctx.arc(sx, cy + 2, 7, 0, Math.PI);
+            ctx.lineTo(sx - 7, cy - 5); ctx.lineTo(sx - 3, cy - 1);
+            ctx.lineTo(sx, cy - 6); ctx.lineTo(sx + 3, cy - 1);
+            ctx.lineTo(sx + 7, cy - 5); ctx.closePath(); ctx.fill();
+        } else if (seed.fruitShape === "lavender") {
+            ctx.fillStyle = seed.flowerColor;
+            [[-3,-2],[3,-2],[0,-6],[-2,2],[2,2],[0,-10]].forEach(([dx,dy]) => {
+                ctx.beginPath(); ctx.arc(sx + dx, cy + dy, 3.3, 0, Math.PI*2); ctx.fill();
+            });
+        } else {
+            ctx.fillStyle = seed.flowerColor;
+            for (let a = 0; a < Math.PI * 2; a += Math.PI / 3) {
+                ctx.beginPath();
+                ctx.arc(sx + Math.cos(a)*6.2, cy + Math.sin(a)*6.2, 4.5, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.fillStyle = seed.centerColor;
+            ctx.beginPath(); ctx.arc(sx, cy, 4, 0, Math.PI*2); ctx.fill();
+        }
+        return;
+    }
+
+    const blossomPositions = [[-5, -11], [5, -11], [0, -6]];
+    blossomPositions.forEach(([dx, dy]) => {
+        const bx = sx + dx, by = sy + dy;
+        ctx.fillStyle = seed.flowerColor;
+        for (let a = 0; a < Math.PI * 2; a += Math.PI * 2 / 5) {
+            ctx.beginPath();
+            ctx.arc(bx + Math.cos(a)*2.8, by + Math.sin(a)*2.8, 2.2, 0, Math.PI*2);
+            ctx.fill();
+        }
+        ctx.fillStyle = seed.centerColor;
+        ctx.beginPath(); ctx.arc(bx, by, 1.8, 0, Math.PI*2); ctx.fill();
+    });
+}
+
+function drawFruitOnPlant(sx, sy, seed, isUnripe) {
+    const col = isUnripe ? "#84cc16" : seed.fruitColor;
+    const sc = isUnripe ? 0.65 : 1.0;
+    const sh = seed.fruitShape;
+
+    if (sh === "strawberry") {
+        [[-5, -5], [5, -4], [0, -9]].forEach(([dx, dy]) => {
+            const fx = sx + dx, fy = sy + dy;
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.moveTo(fx - 4*sc, fy - 2*sc);
+            ctx.quadraticCurveTo(fx + 4*sc, fy - 2*sc, fx, fy + 5*sc);
+            ctx.quadraticCurveTo(fx - 4*sc, fy - 2*sc, fx - 4*sc, fy - 2*sc);
+            ctx.arc(fx, fy - 1*sc, 3.8*sc, 0, Math.PI*2);
+            ctx.fill();
+            if (!isUnripe) {
+                ctx.fillStyle = "#fde047";
+                ctx.fillRect(fx - 1, fy - 1, 1.2, 1.2);
+                ctx.fillRect(fx + 1, fy, 1.2, 1.2);
+            }
+        });
+    } else if (sh === "pineapple") {
+        const fy = sy - 7;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.ellipse(sx, fy, 6.5*sc, 8.5*sc, 0, 0, Math.PI*2);
+        ctx.fill();
+        if (!isUnripe) {
+            ctx.strokeStyle = "#b45309";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(sx - 4, fy - 4); ctx.lineTo(sx + 4, fy + 4);
+            ctx.moveTo(sx + 4, fy - 4); ctx.lineTo(sx - 4, fy + 4);
+            ctx.stroke();
+        }
+        ctx.fillStyle = "#15803d";
+        ctx.beginPath();
+        ctx.moveTo(sx - 5*sc, fy - 7*sc); ctx.lineTo(sx, fy - 14*sc); ctx.lineTo(sx + 5*sc, fy - 7*sc);
+        ctx.fill();
+    } else if (sh === "banana") {
+        [[-5, -8], [0, -7], [5, -8]].forEach(([dx, dy]) => {
+            ctx.strokeStyle = col;
+            ctx.lineWidth = 3.2 * sc;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.arc(sx + dx, sy + dy, 5*sc, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+        });
+    } else if (sh === "grape") {
+        const gSpots = [[-3,-9],[0,-9],[3,-9],[-1.5,-6],[1.5,-6],[0,-3]];
+        ctx.fillStyle = col;
+        gSpots.forEach(([dx, dy]) => {
+            ctx.beginPath();
+            ctx.arc(sx + dx*sc, sy + dy, 2.5*sc, 0, Math.PI*2);
+            ctx.fill();
+        });
+    } else if (sh === "cherry") {
+        ctx.strokeStyle = "#166534";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(sx - 4, sy - 6); ctx.lineTo(sx, sy - 13); ctx.lineTo(sx + 4, sy - 6);
+        ctx.stroke();
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(sx - 4, sy - 5, 3.6*sc, 0, Math.PI*2);
+        ctx.arc(sx + 4, sy - 5, 3.6*sc, 0, Math.PI*2);
+        ctx.fill();
+    } else if (sh === "dragonfruit") {
+        [[-6, -9], [6, -9]].forEach(([dx, dy]) => {
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.ellipse(sx + dx, sy + dy, 4.5*sc, 6*sc, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#4ade80";
+            ctx.fillRect(sx + dx - 1, sy + dy - 7*sc, 2, 3);
+        });
+    } else if (sh === "sunflower") {
+        const cy = sy - 11;
+        ctx.fillStyle = "#facc15";
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 5) {
+            ctx.beginPath();
+            ctx.ellipse(sx + Math.cos(a)*7*sc, cy + Math.sin(a)*7*sc, 4*sc, 2.2*sc, a, 0, Math.PI*2);
+            ctx.fill();
+        }
+        ctx.fillStyle = isUnripe ? "#65a30d" : "#292524";
+        ctx.beginPath(); ctx.arc(sx, cy, 5.2*sc, 0, Math.PI*2); ctx.fill();
+        if (!isUnripe) {
+            ctx.fillStyle = "#d6d3d1";
+            ctx.fillRect(sx - 2, cy - 2, 1.2, 1.2);
+            ctx.fillRect(sx + 1, cy + 1, 1.2, 1.2);
+        }
+    } else if (sh === "mango" || sh === "papaya") {
+        [[-5, -9], [5, -8], [0, -13]].forEach(([dx, dy]) => {
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.ellipse(sx + dx, sy + dy, 3.5*sc, 5*sc, 0.3, 0, Math.PI*2);
+            ctx.fill();
+        });
+    } else {
+        [[-5, -10], [5, -10], [0, -5]].forEach(([dx, dy]) => {
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.arc(sx + dx, sy + dy, 4.2 * sc, 0, Math.PI*2);
+            ctx.fill();
+            if (!isUnripe) {
+                ctx.fillStyle = "rgba(255,255,255,0.45)";
+                ctx.beginPath();
+                ctx.arc(sx + dx - 1.2, sy + dy - 1.2, 1.3, 0, Math.PI*2);
+                ctx.fill();
+            }
+        });
+    }
+}
+
+function drawRealisticFarmer(f) {
+    const isMoving = f.queue.length > 0 && f.workTimer <= 0;
+    const isWorking = f.workTimer > 0;
+    const isMale = f.gender === "M";
+    const stride = isMoving ? Math.sin(f.step) : 0;
+    const bounce = isMoving
+        ? Math.abs(Math.cos(f.step)) * 3.4
+        : (isWorking ? Math.sin(state.worldTime * 18) * 2.2 : Math.sin(state.worldTime * 2.4 + (isMale ? 0 : 1.5)) * 1.1);
+    const hairSway = Math.sin(state.worldTime * 4 + f.x * 0.05) * (isMoving ? 3.2 : 1.2);
+
+    const fx = f.x;
+    const fy = f.y - bounce;
+
+    // Zemin Gölgesi
+    ctx.fillStyle = "rgba(0,0,0,0.34)";
+    ctx.beginPath();
+    ctx.ellipse(fx, f.y + 27, isMale ? 17.5 : 15, 6.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(fx, fy);
+
+    const leftLegY = 14 + stride * 4.8;
+    const rightLegY = 14 - stride * 4.8;
+
+    // 1. ARKA SAÇ (Kadın çiftçi için uzun dalgalı arka saç ve örgüler)
+    if (!isMale) {
+        ctx.fillStyle = "#5c1f0e";
+        ctx.beginPath();
+        ctx.ellipse(0, -11, 14.5, 11, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // İki yandan sarkan uzun örgülü/dalgalı saçlar (yürürken sallanır)
+        ctx.fillStyle = f.hair;
+        ctx.strokeStyle = "#431407";
+        ctx.lineWidth = 1.3;
+
+        // Sol örgü
+        ctx.save();
+        ctx.translate(-11, -11);
+        ctx.rotate(0.18 + hairSway * 0.03);
+        ctx.beginPath();
+        ctx.ellipse(-1, 5, 4.2, 6, 0.1, 0, Math.PI * 2);
+        ctx.ellipse(-1.5, 12, 3.6, 5, 0.1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        // Pembe saç kurdelesi/tokası
+        ctx.fillStyle = "#f43f5e";
+        ctx.beginPath();
+        ctx.arc(-1.5, 16, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Sağ örgü
+        ctx.save();
+        ctx.translate(11, -11);
+        ctx.rotate(-0.18 + hairSway * 0.03);
+        ctx.fillStyle = f.hair;
+        ctx.beginPath();
+        ctx.ellipse(1, 5, 4.2, 6, -0.1, 0, Math.PI * 2);
+        ctx.ellipse(1.5, 12, 3.6, 5, -0.1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        // Pembe saç kurdelesi/tokası
+        ctx.fillStyle = "#f43f5e";
+        ctx.beginPath();
+        ctx.arc(1.5, 16, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // 2. BACAKLAR VE ÇİZMELER
+    if (isMale) {
+        // Erkek: Daha kalın kot pantolon paçaları ve sağlam iş botları
+        ctx.fillStyle = "#1e3a8a";
+        ctx.strokeStyle = "#0f172a";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.roundRect(-9.5, 10, 7.5, leftLegY - 3, 2.5); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.roundRect(2, 10, 7.5, rightLegY - 3, 2.5); ctx.fill(); ctx.stroke();
+
+        // Çizme / İş Botu
+        ctx.fillStyle = "#451a03";
+        ctx.strokeStyle = "#1c0a00";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.roundRect(-10.5, leftLegY + 3, 9.5, 6.5, 3); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.roundRect(1, rightLegY + 3, 9.5, 6.5, 3); ctx.fill(); ctx.stroke();
+    } else {
+        // Kadın: İnce zarif bacaklar ve kırmızı/bordo bahçe çizmeleri
+        ctx.fillStyle = "#fed7aa";
+        ctx.beginPath(); ctx.roundRect(-7, 11, 5.2, leftLegY - 4, 2.5); ctx.fill();
+        ctx.beginPath(); ctx.roundRect(1.8, 11, 5.2, rightLegY - 4, 2.5); ctx.fill();
+
+        // Uzun Bahçe Çizmesi
+        ctx.fillStyle = "#be123c";
+        ctx.strokeStyle = "#4c0519";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.roundRect(-8, leftLegY + 1, 7, 8, 3); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.roundRect(1, rightLegY + 1, 7, 8, 3); ctx.fill(); ctx.stroke();
+        // Çizme üst şeridi
+        ctx.fillStyle = "#fda4af";
+        ctx.fillRect(-7.5, leftLegY + 1, 6, 2);
+        ctx.fillRect(1.5, rightLegY + 1, 6, 2);
+    }
+
+    // 3. GÖVDE ŞEKLİ VE KIYAFET (Erkek ve Kadın Anatomik Farkı)
+    if (isMale) {
+        // ERKEK: Geniş omuzlu oduncu gömleği (ekose çizgili) + klasik tulum
+        ctx.fillStyle = f.shirt; // Kırmızı gömlek
+        ctx.strokeStyle = "#1f2937";
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(-14.5, -8.5); // Geniş sol omuz
+        ctx.lineTo(14.5, -8.5);  // Geniş sağ omuz
+        ctx.lineTo(11.5, 12.5);  // Bel
+        ctx.lineTo(-11.5, 12.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Oduncu gömleği ekose detayları
+        ctx.strokeStyle = "rgba(69, 10, 10, 0.35)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(-12, -4); ctx.lineTo(12, -4);
+        ctx.moveTo(-11, 0); ctx.lineTo(11, 0);
+        ctx.stroke();
+
+        // Kot Bahçıvan Tulumu
+        ctx.fillStyle = f.overalls;
+        ctx.strokeStyle = "#1e3a8a";
+        ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        ctx.roundRect(-10.5, -1.5, 21, 14.5, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        // Tulum askıları ve sarı pirinç düğmeler
+        ctx.fillRect(-9.5, -8.5, 4, 8);
+        ctx.fillRect(5.5, -8.5, 4, 8);
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath();
+        ctx.arc(-7.5, -1.5, 1.8, 0, Math.PI * 2);
+        ctx.arc(7.5, -1.5, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Tulum ön cebi ve kemer
+        ctx.strokeStyle = "rgba(255,255,255,0.4)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-5, 2, 10, 6.5);
+        ctx.fillStyle = "#451a03";
+        ctx.fillRect(-10.5, 9, 21, 2.5);
+        ctx.fillStyle = "#facc15";
+        ctx.fillRect(-2.5, 8.8, 5, 3);
+
+        // Erkek Yaka & Sarı Fular
+        ctx.fillStyle = "#fde047";
+        ctx.beginPath();
+        ctx.moveTo(-6.5, -8.5); ctx.lineTo(6.5, -8.5); ctx.lineTo(0, -2.5);
+        ctx.closePath();
+        ctx.fill();
+    } else {
+        // KADIN: İnce belli bluz, kloş çiftçi eteği ve çiçekli önlük
+        ctx.fillStyle = f.shirt; // Pembe bluz
+        ctx.strokeStyle = "#831843";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(-10.5, -7.5); // Daha zarif dar omuz
+        ctx.lineTo(10.5, -7.5);
+        ctx.lineTo(7.5, 2.5);    // İnce bel oyuntusu
+        ctx.lineTo(-7.5, 2.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Kloş Çiftçi Eteği (Belden aşağı genişleyen feminen kesim)
+        ctx.fillStyle = f.overalls;
+        ctx.strokeStyle = "#0369a1";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(-8, 1.5);
+        ctx.lineTo(8, 1.5);
+        ctx.quadraticCurveTo(13.5, 8, 14.5, 14.5);
+        ctx.quadraticCurveTo(0, 16.5, -14.5, 14.5);
+        ctx.quadraticCurveTo(-13.5, 8, -8, 1.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Beyaz dantelli/çiçekli bahçıvan önlüğü ve askıları
+        ctx.fillStyle = "#fff1f2";
+        ctx.fillRect(-7, -7.5, 2.8, 9);
+        ctx.fillRect(4.2, -7.5, 2.8, 9);
+        ctx.beginPath();
+        ctx.moveTo(-6.5, 1.5);
+        ctx.lineTo(6.5, 1.5);
+        ctx.lineTo(8.5, 12.5);
+        ctx.quadraticCurveTo(0, 14, -8.5, 12.5);
+        ctx.closePath();
+        ctx.fill();
+
+        // Önlük üstünde minik çiçek motifi
+        ctx.fillStyle = "#f43f5e";
+        ctx.beginPath(); ctx.arc(0, 7.5, 2.2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath(); ctx.arc(0, 7.5, 1, 0, Math.PI * 2); ctx.fill();
+
+        // Zarif Beyaz Yaka & İnci Kolye detayı
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.ellipse(-3, -7.5, 3.5, 1.8, 0.3, 0, Math.PI * 2);
+        ctx.ellipse(3, -7.5, 3.5, 1.8, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // 4. KOLLAR, ELLER VE TUTULAN ALETLER
+    const armSwing = isMoving ? stride * 0.48 : (isWorking ? Math.sin(state.worldTime * 22) * 0.65 : 0);
+    const shoulderX = isMale ? 14 : 10.5;
+    const armW = isMale ? 6.2 : 4.8;
+
+    // Sol Kol
+    ctx.save();
+    ctx.translate(-shoulderX, -5.5);
+    ctx.rotate(armSwing);
+    if (!isMale) {
+        // Kadın için kabarık kısa kol (puff sleeve) ve zarif ön kol
+        ctx.fillStyle = f.shirt;
+        ctx.beginPath(); ctx.arc(-1, 2.5, 4.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#fed7aa";
+        ctx.beginPath(); ctx.roundRect(-3, 4, 4.4, 9.5, 2.2); ctx.fill();
+    } else {
+        // Erkek için sıvalı gömlek kolu ve kaslı ön kol
+        ctx.fillStyle = f.shirt;
+        ctx.beginPath(); ctx.roundRect(-3.5, 0, armW, 7.5, 2.5); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#fed7aa";
+        ctx.beginPath(); ctx.roundRect(-3.2, 7, 5.4, 7, 2.5); ctx.fill();
+    }
+    ctx.fillStyle = "#fed7aa";
+    ctx.beginPath(); ctx.arc(-0.5, 14.2, isMale ? 3.4 : 2.8, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    // Sağ Kol + Alet
+    ctx.save();
+    ctx.translate(shoulderX, -5.5);
+    ctx.rotate(-armSwing);
+    if (!isMale) {
+        ctx.fillStyle = f.shirt;
+        ctx.beginPath(); ctx.arc(1, 2.5, 4.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#fed7aa";
+        ctx.beginPath(); ctx.roundRect(-1.4, 4, 4.4, 9.5, 2.2); ctx.fill();
+    } else {
+        ctx.fillStyle = f.shirt;
+        ctx.beginPath(); ctx.roundRect(-2.5, 0, armW, 7.5, 2.5); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#fed7aa";
+        ctx.beginPath(); ctx.roundRect(-2.2, 7, 5.4, 7, 2.5); ctx.fill();
+    }
+    ctx.fillStyle = "#fed7aa";
+    ctx.beginPath(); ctx.arc(0.5, 14.2, isMale ? 3.4 : 2.8, 0, Math.PI * 2); ctx.fill();
+
+    const activeTool = f.queue.length > 0 ? f.queue[0].action : f.tool;
+    if (activeTool === "plant") {
+        ctx.fillStyle = "#a16207";
+        ctx.strokeStyle = "#451a03";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(2, 18, 5.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#4ade80";
+        ctx.beginPath(); ctx.arc(2, 18, 2.2, 0, Math.PI * 2); ctx.fill();
+    } else if (activeTool === "harvest") {
+        ctx.fillStyle = "#d97706";
+        ctx.strokeStyle = "#78350f";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.roundRect(-5, 14, 14, 9, 3); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#ef4444";
+        ctx.beginPath(); ctx.arc(-1, 14, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath(); ctx.arc(4, 14, 3, 0, Math.PI * 2); ctx.fill();
+    } else if (activeTool === "water") {
+        ctx.fillStyle = "#0284c7";
+        ctx.beginPath(); ctx.roundRect(-2, 13, 10, 8, 2); ctx.fill();
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(8, 15); ctx.lineTo(14, 11); ctx.stroke();
+    }
+    ctx.restore();
+
+    // 5. BOYUN, KULAKLAR VE YÜZ HATTI
+    // Boyun
+    ctx.fillStyle = "#fdba74";
+    ctx.fillRect(isMale ? -3.5 : -2.5, -10.5, isMale ? 7 : 5, 4);
+
+    // Kulaklar
+    ctx.fillStyle = "#fed7aa";
+    ctx.strokeStyle = "#9a3412";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(-11.5, -16, 2.6, 0, Math.PI * 2);
+    ctx.arc(11.5, -16, 2.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Kadın çiftçi için inci/altın küpeler
+    if (!isMale) {
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath();
+        ctx.arc(-11.8, -13.2, 1.7, 0, Math.PI * 2);
+        ctx.arc(11.8, -13.2, 1.7, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Kafa ve Çene Yapısı (Erkek daha köşeli/geniş çene, kadın daha oval/zarif çene)
+    ctx.fillStyle = "#fed7aa";
+    ctx.strokeStyle = "#9a3412";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    if (isMale) {
+        ctx.roundRect(-11.5, -27.5, 23, 21.5, 9.5);
+    } else {
+        ctx.arc(0, -16.8, 11, 0, Math.PI * 2);
+    }
+    ctx.fill();
+    ctx.stroke();
+
+    // ERKEK: Bıyık ve hafif kirli sakal / çene hattı
+    if (isMale) {
+        // Hafif çene sakalı gölgesi
+        ctx.fillStyle = "rgba(69, 26, 3, 0.16)";
+        ctx.beginPath();
+        ctx.arc(0, -13.5, 9.2, 0.12 * Math.PI, 0.88 * Math.PI);
+        ctx.fill();
+
+        // Sempatik çiftçi bıyığı
+        ctx.strokeStyle = f.hair;
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(0, -13.2);
+        ctx.quadraticCurveTo(-3.5, -14.2, -5.8, -12.3);
+        ctx.moveTo(0, -13.2);
+        ctx.quadraticCurveTo(3.5, -14.2, 5.8, -12.3);
+        ctx.stroke();
+
+        // Favoriler (kulak önü saç/sakal)
+        ctx.fillStyle = f.hair;
+        ctx.fillRect(-11.2, -19.5, 2.3, 5.5);
+        ctx.fillRect(8.9, -19.5, 2.3, 5.5);
+    } else {
+        // KADIN: Pembe yanak allığı ve kavisli kirpikler
+        ctx.fillStyle = "rgba(244, 63, 94, 0.42)";
+        ctx.beginPath();
+        ctx.ellipse(-6.8, -14.2, 3.2, 1.9, 0, 0, Math.PI * 2);
+        ctx.ellipse(6.8, -14.2, 3.2, 1.9, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // 6. GÖZLER, KAŞLAR, BURUN VE DUDAK
+    const isBlinking = (f.blinkTimer % 4.2) > 4.0;
+    const lookOffset = f.facing * 1.2;
+
+    // Kaşlar (Erkekte kalın düz kaş, kadında ince kavisli kaş)
+    ctx.strokeStyle = f.hair;
+    ctx.lineWidth = isMale ? 2.1 : 1.3;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    if (isMale) {
+        ctx.moveTo(-7 + lookOffset, -20.2); ctx.lineTo(-2 + lookOffset, -19.7);
+        ctx.moveTo(2 + lookOffset, -19.7); ctx.lineTo(7 + lookOffset, -20.2);
+    } else {
+        ctx.quadraticCurveTo(-4.5 + lookOffset, -21.2, -2 + lookOffset, -19.8);
+        ctx.moveTo(-7 + lookOffset, -19.8); ctx.quadraticCurveTo(-4.5 + lookOffset, -21.4, -2 + lookOffset, -19.8);
+        ctx.moveTo(2 + lookOffset, -19.8); ctx.quadraticCurveTo(4.5 + lookOffset, -21.4, 7 + lookOffset, -19.8);
+    }
+    ctx.stroke();
+
+    // Gözler
+    ctx.fillStyle = "#1f2937";
+    ctx.strokeStyle = "#1f2937";
+    ctx.lineWidth = 1.6;
+    if (isBlinking) {
+        ctx.beginPath();
+        ctx.moveTo(-6.2 + lookOffset, -17); ctx.lineTo(-2.2 + lookOffset, -17);
+        ctx.moveTo(2.2 + lookOffset, -17); ctx.lineTo(6.2 + lookOffset, -17);
+        ctx.stroke();
+    } else {
+        // Göz bebeği
+        ctx.beginPath();
+        ctx.arc(-4.3 + lookOffset, -17.2, isMale ? 2.0 : 2.3, 0, Math.PI * 2);
+        ctx.arc(4.3 + lookOffset, -17.2, isMale ? 2.0 : 2.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Kadın için belirgin yan kirpikler
+        if (!isMale) {
+            ctx.strokeStyle = "#111827";
+            ctx.lineWidth = 1.3;
+            ctx.beginPath();
+            ctx.moveTo(-6.2 + lookOffset, -18.2); ctx.lineTo(-7.8 + lookOffset, -19.5);
+            ctx.moveTo(-5.5 + lookOffset, -19.0); ctx.lineTo(-6.8 + lookOffset, -20.3);
+            ctx.moveTo(6.2 + lookOffset, -18.2); ctx.lineTo(7.8 + lookOffset, -19.5);
+            ctx.moveTo(5.5 + lookOffset, -19.0); ctx.lineTo(6.8 + lookOffset, -20.3);
+            ctx.stroke();
+        }
+
+        // Göz ışıltısı
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(-4.9 + lookOffset, -17.9, 0.85, 0, Math.PI * 2);
+        ctx.arc(3.7 + lookOffset, -17.9, 0.85, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Minik Burun
+    ctx.fillStyle = "#ea580c";
+    ctx.beginPath();
+    ctx.arc(lookOffset * 0.6, -15.2, isMale ? 1.4 : 1.0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ağız / Dudak
+    if (isMale) {
+        ctx.strokeStyle = "#7c2d12";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(lookOffset * 0.5, -11.5, 2.6, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+    } else {
+        // Kadın için pembe/kırmızı gülümseyen dudak
+        ctx.fillStyle = "#e11d48";
+        ctx.beginPath();
+        ctx.arc(lookOffset * 0.5, -12.8, 2.8, 0.08 * Math.PI, 0.92 * Math.PI);
+        ctx.fill();
+    }
+
+    // 7. ÖN SAÇ KÂKÜLÜ VE ŞAPKA TASARIMI
+    ctx.fillStyle = f.hair;
+    if (isMale) {
+        // Erkek kısa ön saç
+        ctx.beginPath();
+        ctx.arc(0, -21, 10.8, Math.PI, 0);
+        ctx.fill();
+    } else {
+        // Kadın zarif yan perçem / kâkül
+        ctx.beginPath();
+        ctx.arc(-4, -22, 7.5, 0.85 * Math.PI, 1.95 * Math.PI);
+        ctx.arc(4, -22, 7.5, 1.05 * Math.PI, 0.15 * Math.PI);
+        ctx.fill();
+    }
+
+    // Şapka (Erkek için kovboy/çiftçi fötr hasır şapkası, kadın için çiçekli geniş güneş şapkası)
+    ctx.fillStyle = f.hat;
+    ctx.strokeStyle = "#854d0e";
+    ctx.lineWidth = 1.6;
+    if (isMale) {
+        ctx.beginPath();
+        ctx.ellipse(0, -24.5, 19.5, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(-10.5, -33.5, 21, 9.5, 4);
+        ctx.fill();
+        ctx.stroke();
+        // Kırmızı deri şapka şeridi ve başak teli
+        ctx.fillStyle = "#b91c1c";
+        ctx.fillRect(-10.5, -26.8, 21, 2.8);
+    } else {
+        ctx.beginPath();
+        ctx.ellipse(0, -24.5, 21, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, -25, 10.8, Math.PI, 0);
+        ctx.fill();
+        ctx.stroke();
+        // Pembe kurdele ve şapka kenarında papatya çiçeği
+        ctx.fillStyle = "#ec4899";
+        ctx.fillRect(-10.5, -27, 21, 2.8);
+        // Şapka çiçeği
+        ctx.fillStyle = "#ffffff";
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 3) {
+            ctx.beginPath();
+            ctx.arc(9 + Math.cos(a) * 3, -27.5 + Math.sin(a) * 3, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath(); ctx.arc(9, -27.5, 1.6, 0, Math.PI * 2); ctx.fill();
+    }
+
+    ctx.restore();
+
+    // İsim Etiketi
+    ctx.font = "bold 12px Fredoka";
+    ctx.textAlign = "center";
+    const genderBadge = isMale ? "👨‍🌾 " : "👩‍🌾 ";
+    const statusIcon = f.queue.length > 0 ? (f.queue[0].action === "plant" ? " 🌱" : " 🧺") : "";
+    const labelText = genderBadge + f.name + statusIcon;
+    const tw = ctx.measureText(labelText).width + 14;
+    ctx.fillStyle = "rgba(15, 23, 42, 0.78)";
+    ctx.strokeStyle = isMale ? "#60a5fa" : "#f472b6";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(fx - tw / 2, fy - 53, tw, 18, 7);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = isMale ? "#bfdbfe" : "#fbcfe8";
+    ctx.fillText(labelText, fx, fy - 40);
+}
+
+function drawParticles() {
+    state.particles.forEach(pt => {
+        ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI*2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1.0;
+}
+
+function drawCloudsAndLighting() {
+    state.clouds.forEach(c => {
+        ctx.fillStyle = state.timeOfDay === "night" ? "rgba(148, 163, 184, 0.22)" :
+                        state.timeOfDay === "sunset" ? "rgba(254, 215, 170, 0.65)" : "rgba(255, 255, 255, 0.78)";
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 18 * c.s, 0, Math.PI*2);
+        ctx.arc(c.x + 15 * c.s, c.y - 4 * c.s, 22 * c.s, 0, Math.PI*2);
+        ctx.arc(c.x + 32 * c.s, c.y, 16 * c.s, 0, Math.PI*2);
+        ctx.fill();
+    });
+
+    if (state.timeOfDay === "night") {
+        ctx.fillStyle = "rgba(254, 249, 195, 0.2)";
+        ctx.beginPath(); ctx.arc(845, 38, 36, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#fef08a";
+        ctx.beginPath(); ctx.arc(845, 38, 18, 0, Math.PI*2); ctx.fill();
+    } else {
+        ctx.fillStyle = state.timeOfDay === "sunset" ? "rgba(249, 115, 22, 0.28)" : "rgba(250, 204, 21, 0.24)";
+        ctx.beginPath(); ctx.arc(845, 38, 48, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = state.timeOfDay === "sunset" ? "#fb923c" : "#facc15";
+        ctx.beginPath(); ctx.arc(845, 38, 22, 0, Math.PI*2); ctx.fill();
+    }
+
+    if (state.timeOfDay === "sunset") {
+        ctx.fillStyle = "rgba(234, 88, 12, 0.14)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else if (state.timeOfDay === "night") {
+        ctx.fillStyle = "rgba(15, 23, 42, 0.36)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        state.fireflies.forEach(ff => {
+            const glow = (Math.sin(state.worldTime * 4 + ff.phase) + 1) * 0.5;
+            ctx.fillStyle = `rgba(250, 204, 21, ${0.25 + glow * 0.65})`;
+            ctx.beginPath(); ctx.arc(ff.x, ff.y, 2.5 + glow * 2, 0, Math.PI*2); ctx.fill();
+        });
+    }
+
+    if (state.weather === "rainy") {
+        ctx.fillStyle = "rgba(15, 23, 42, 0.20)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(125, 211, 252, 0.78)";
+        ctx.lineWidth = 2;
+        state.raindrops.forEach(r => {
+            ctx.beginPath();
+            ctx.moveTo(r.x, r.y);
+            ctx.lineTo(r.x - 4, r.y + 13);
+            ctx.stroke();
+            r.y += r.s * 2.2;
+            r.x -= 1.2;
+            if (r.y > canvas.height) { r.y = -10; r.x = Math.random() * canvas.width; }
+        });
+    } else if (state.weather === "drought") {
+        ctx.fillStyle = "rgba(234, 88, 12, 0.12)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
+function drawPollinators() {
+    state.pollinators.forEach(b => {
+        const w = Math.abs(Math.sin(b.wing)) * 5 + 2;
+        if (b.isBee) {
+            ctx.fillStyle = "#facc15";
+            ctx.beginPath(); ctx.ellipse(b.x, b.y, 4.5, 3, 0, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#1c1917";
+            ctx.fillRect(b.x - 1, b.y - 2.5, 2, 5);
+            ctx.fillStyle = "rgba(255,255,255,0.8)";
+            ctx.beginPath(); ctx.ellipse(b.x, b.y - 3, 2.5, w * 0.7, 0, 0, Math.PI*2); ctx.fill();
+        } else {
+            ctx.fillStyle = b.color;
+            ctx.beginPath();
+            ctx.ellipse(b.x - 3, b.y, w, 4, 0.3, 0, Math.PI*2);
+            ctx.ellipse(b.x + 3, b.y, w, 4, -0.3, 0, Math.PI*2);
+            ctx.fill();
+        }
+    });
+}
+
+// Ana Oyun Döngüsü
+let lastTime = performance.now();
+function gameLoop(now) {
+    const dt = Math.min(0.1, (now - lastTime) / 1000);
+    lastTime = now;
+    state.worldTime += dt;
+    state.windmillAngle += dt * 1.1;
+
+    for (let i = 0; i < state.unlockedPlots; i++) {
+        const p = state.plots[i];
+        if (p.wetTimer > 0) p.wetTimer = Math.max(0, p.wetTimer - dt);
+        if (p.status === "growing") {
+            const seed = SEEDS[p.seedId];
+            const wetBonus = p.wetTimer > 0 ? 1.15 : 1.0;
+            p.progress += dt * state.weatherMult * wetBonus;
+            if (p.progress >= seed.time) {
+                p.progress = seed.time;
+                p.status = "ready";
+            }
+        }
+    }
+
+    state.farmers.forEach(f => {
+        f.blinkTimer += dt;
+        if (f.workTimer > 0) {
+            f.workTimer = Math.max(0, f.workTimer - dt);
+            if (f.workTimer === 0 && f.queue.length === 0) f.tool = "none";
+            return;
+        }
+
+        if (f.queue.length > 0) {
+            const current = f.queue[0];
+            const dx = current.tx - f.x;
+            const dy = current.ty - f.y;
+            const dist = Math.hypot(dx, dy);
+            if (Math.abs(dx) > 2) f.facing = dx >= 0 ? 1 : -1;
+
+            if (dist > 6) {
+                const speed = 235 * dt;
+                f.x += (dx / dist) * speed;
+                f.y += (dy / dist) * speed;
+                f.step += dt * 15;
+            } else {
+                f.step = 0;
+                f.queue.shift();
+                executeTask(current, f);
+            }
+        } else {
+            f.step = 0;
+        }
+    });
+
+    state.chickens.forEach(ch => {
+        ch.peck += dt;
+        ch.x += ch.vx * dt;
+        if (ch.x < 210 || ch.x > 660) { ch.vx *= -1; ch.facing = ch.vx >= 0 ? 1 : -1; }
+    });
+    state.koiFish.forEach(fish => { fish.angle += fish.speed * dt; });
+    state.clouds.forEach(c => {
+        c.x += c.speed * dt;
+        if (c.x > canvas.width + 60) c.x = -60;
+    });
+    state.fireflies.forEach(ff => {
+        ff.x += ff.vx * dt;
+        ff.y += ff.vy * dt;
+        if (ff.x < 20 || ff.x > 880) ff.vx *= -1;
+        if (ff.y < 80 || ff.y > 510) ff.vy *= -1;
+    });
+
+    state.pollinators.forEach(b => {
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+    });
+
+    state.particles.forEach(pt => {
+        pt.x += pt.vx * dt;
+        pt.y += pt.vy * dt;
+        pt.vy += 90 * dt;
+        pt.life -= dt;
+    });
+    state.particles = state.particles.filter(pt => pt.life > 0);
+
+    state.flyingFruits.forEach(ff => {
+        ff.progress += dt * 1.65;
+    });
+    state.flyingFruits = state.flyingFruits.filter(ff => ff.progress < 1.0);
+
+    state.floatingTexts.forEach(ft => { ft.y -= 0.9; ft.life--; });
+    state.floatingTexts = state.floatingTexts.filter(ft => ft.life > 0);
+
+    drawFarm();
+    requestAnimationFrame(gameLoop);
+}
+
+// Her 3 saniyede bir ve sayfa kapanırken otomatik kaydet (büyüme ilerlemesi kaybolmasın)
+setInterval(() => {
+    if (document.getElementById("setupModal").classList.contains("hidden")) {
+        saveGame();
+    }
+}, 3000);
+
+window.addEventListener("beforeunload", () => {
+    if (document.getElementById("setupModal").classList.contains("hidden")) {
+        saveGame();
+    }
+});
+
+window.onload = () => {
+    loadGame();
+    setLang(state.lang || "tr");
+    updateSetupModalForSavedGame();
+    requestAnimationFrame(gameLoop);
+};
+</script>
+</body>
+</html>
+
